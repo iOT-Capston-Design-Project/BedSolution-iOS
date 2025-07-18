@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Resource
 
 struct ContentView: View {
     var body: some View {
@@ -14,6 +15,7 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
+                .foregroundColor(Theme.light.colors.primary)
         }
         .padding()
     }
