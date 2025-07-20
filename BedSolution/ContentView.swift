@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Resource
+import BedResource
 
 struct ContentView: View {
     var body: some View {
