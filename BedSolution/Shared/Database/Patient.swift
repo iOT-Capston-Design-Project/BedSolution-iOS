@@ -1,0 +1,77 @@
+//
+//  Patient.swift
+//  BedSolution
+//
+//  Created by 이재호 on 7/31/25.
+//
+
+import Foundation
+import SwiftData
+
+@Model
+final class Patient: Codable {
+    @Attribute(.unique) public var id: Int = 0
+    public var createdAt: Date = Date()
+    public var updatedAt: Date?
+    public var uid: UUID = UUID()
+    public var name: String = ""
+    public var height: Float?
+    public var weight: Float?
+    public var cautionOcciput: Bool = false
+    public var cautionScapula: Bool = false
+    public var cautionElbow: Bool = false
+    public var cautionHip: Bool = false
+    public var cautionHeel: Bool = false
+    
+    @Relationship(deleteRule: .cascade, inverse: \DayLog.patient)
+    public var dayLogs: [DayLog] = []
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case uid
+        case name
+        case height
+        case weight
+        case cautionOcciput = "caution_occiput"
+        case cautionScapula = "caution_scapula"
+        case cautionElbow = "caution_elbow"
+        case cautionHip = "caution_hip"
+        case cautionHeel = "caution_heel"
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(Int.self, forKey: .id)
+        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
+        self.updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+        self.uid = try container.decode(UUID.self, forKey: .uid)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.height = try container.decodeIfPresent(Float.self, forKey: .height)
+        self.weight = try container.decodeIfPresent(Float.self, forKey: .weight)
+        self.cautionOcciput = try container.decode(Bool.self, forKey: .cautionOcciput)
+        self.cautionScapula = try container.decode(Bool.self, forKey: .cautionScapula)
+        self.cautionElbow = try container.decode(Bool.self, forKey: .cautionElbow)
+        self.cautionHip = try container.decode(Bool.self, forKey: .cautionHip)
+        self.cautionHeel = try container.decode(Bool.self, forKey: .cautionHeel)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(createdAt, forKey: .createdAt)
+        try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
+        try container.encode(uid, forKey: .uid)
+        try container.encode(name, forKey: .name)
+        try container.encodeIfPresent(height, forKey: .height)
+        try container.encodeIfPresent(weight, forKey: .weight)
+        try container.encode(cautionOcciput, forKey: .cautionOcciput)
+        try container.encode(cautionScapula, forKey: .cautionScapula)
+        try container.encode(cautionElbow, forKey: .cautionElbow)
+        try container.encode(cautionHip, forKey: .cautionHip)
+        try container.encode(cautionHeel, forKey: .cautionHeel)
+    }
+    
+    init() {}
+}

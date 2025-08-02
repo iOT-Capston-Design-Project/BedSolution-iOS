@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct BedSolutionApp: App {
@@ -13,5 +14,6 @@ struct BedSolutionApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(DBContainer.container)
     }
 }
