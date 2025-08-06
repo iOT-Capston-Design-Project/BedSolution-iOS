@@ -32,7 +32,7 @@ private struct ForegroundColorSetModifier: ViewModifier {
     }
 }
 
-private struct BackgroundColorSetModifier<S: InsettableShape>: ViewModifier {
+private struct BackgroundColorShapeModifier<S: InsettableShape>: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     var colorSet: ColorSet
     var shape: S
@@ -48,12 +48,28 @@ private struct BackgroundColorSetModifier<S: InsettableShape>: ViewModifier {
     }
 }
 
+private struct BackgroundColorSetModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    var colorSet: ColorSet
+    var ignoresSafeAreaEdges: Edge.Set
+    
+    func body(content: Content) -> some View {
+        content
+            .background(colorScheme == .dark ? Color(hex: colorSet.dark) : Color(hex: colorSet.light), ignoresSafeAreaEdges: ignoresSafeAreaEdges)
+    }
+}
+
+
 extension View {
     public func foregroundColorSet(_ colorSet: ColorSet) -> some View {
         modifier(ForegroundColorSetModifier(colorSet: colorSet))
     }
     
     public func backgroundColorSet(_ colorSet: ColorSet, in shape: some InsettableShape) -> some View {
-        modifier(BackgroundColorSetModifier(colorSet: colorSet, in: shape))
+        modifier(BackgroundColorShapeModifier(colorSet: colorSet, in: shape))
+    }
+    
+    public func backgroundColorSet(_ colorSet: ColorSet, ignoresSafeAreaEdges: Edge.Set = .all) -> some View {
+        modifier(BackgroundColorSetModifier(colorSet: colorSet, ignoresSafeAreaEdges: ignoresSafeAreaEdges))
     }
 }
