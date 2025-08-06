@@ -29,15 +29,22 @@ class AuthController {
         _listenUserSession()
     }
     
-    func signInWithApple(idToken: String, username: String?) async -> Bool {
+    func signin(email: String, password: String) async -> Bool {
         do {
-            let session = try await client.auth.signInWithIdToken(credentials: OpenIDConnectCredentials(provider: .apple, idToken: idToken))
-            if let username {
-                _ = try? await client.auth.update(user: UserAttributes(data: ["username": .string(username)]))
-            }
+            _ = try await client.auth.signIn(email: email, password: password)
             return true
         } catch {
-            logger.error("Failed to sign in with Apple: \(error)")
+            logger.error("Failed to sign in: \(error)")
+            return false
+        }
+    }
+    
+    func signup(email: String, password: String) async -> Bool {
+        do {
+            _ = try await client.auth.signUp(email: email, password: password)
+            return true
+        } catch {
+            logger.error("Failed to sign up: \(error)")
             return false
         }
     }
@@ -49,7 +56,7 @@ class AuthController {
         }
         do {
             let result = try await client.from("patients")
-                .select(head: true, count: CountOption.planned)
+                .select(head: true)
                 .eq("uid", value: uid)
                 .execute()
                 .count ?? 0
@@ -70,10 +77,8 @@ class AuthController {
                 self.logger.info("User session changed: \(event)")
                 self.isSignIn = session?.user != nil
                 if let user = session?.user {
-                    self.username = user.userMetadata["username"]?.stringValue ?? ""
                     self.email = user.email ?? ""
                 } else {
-                    self.username = ""
                     self.email = ""
                 }
             }
