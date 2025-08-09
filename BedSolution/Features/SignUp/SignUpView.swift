@@ -50,6 +50,7 @@ struct SignUpView: View {
             TextField("이메일", text: $email, prompt: Text("이메일"))
                 .textContentType(.emailAddress)
                 .labelsHidden()
+                .textStyle(theme.textTheme.bodyLarge)
                 .roundedTextFieldStyle()
                 .focused($keyboardScope, equals: .email)
                 .onSubmit {
@@ -59,6 +60,7 @@ struct SignUpView: View {
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
                 .textContentType(.password)
                 .labelsHidden()
+                .textStyle(theme.textTheme.bodyLarge)
                 .roundedTextFieldStyle()
                 .focused($keyboardScope, equals: .password)
         }
@@ -69,6 +71,7 @@ struct SignUpView: View {
             TextField("이메일", text: $email, prompt: Text("이메일"))
                 .textContentType(.emailAddress)
                 .labelsHidden()
+                .textStyle(theme.textTheme.bodyLarge)
                 .roundedTextFieldStyle()
                 .focused($keyboardScope, equals: .email)
                 .onSubmit {
@@ -78,6 +81,7 @@ struct SignUpView: View {
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
                 .textContentType(.password)
                 .labelsHidden()
+                .textStyle(theme.textTheme.bodyLarge)
                 .roundedTextFieldStyle()
                 .focused($keyboardScope, equals: .password)
                 .onSubmit {
@@ -87,6 +91,7 @@ struct SignUpView: View {
             SecureField("비밀번호 재입력", text: $passwordConfirmation, prompt: Text("비밀번호 재입력"))
                 .textContentType(.password)
                 .labelsHidden()
+                .textStyle(theme.textTheme.bodyLarge)
                 .roundedTextFieldStyle()
                 .focused($keyboardScope, equals: .passwordConfirmation)
         }
@@ -138,6 +143,7 @@ struct SignUpView: View {
                                         .progressViewStyle(.circular)
                                 }
                                 Text("회원가입")
+                                    .textStyle(theme.textTheme.emphasizedBodyLarge)
                             }
                             .frame(minWidth: 300, maxWidth: 400)
                         }
@@ -157,6 +163,7 @@ struct SignUpView: View {
                                         .progressViewStyle(.circular)
                                 }
                                 Text("로그인")
+                                    .textStyle(theme.textTheme.emphasizedBodyLarge)
                             }
                             .frame(minWidth: 300, maxWidth: 400)
                         }
@@ -183,7 +190,7 @@ struct SignUpView: View {
             .backgroundColorSet(theme.colorTheme.surface)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $registerPatient) {
-                Text("TEST")
+                PatientRegisterView()
             }
         }
         .alert(isPresented: $errorOccurred, error: signupError) { _ in
@@ -211,7 +218,7 @@ struct SignUpView: View {
                 signupError = .signupFailed
                 return
             }
-            if !(await authController.isPatientExit()) {
+            if !(await authController.loadPatient()) {
                 logger.info("Patient is not exit. Navigating to register patient page.")
                 registerPatient = true
                 return
@@ -236,7 +243,7 @@ struct SignUpView: View {
                 signupError = .signinFailed
                 return
             }
-            if !(await authController.isPatientExit()) {
+            if !(await authController.loadPatient()) {
                 logger.info("Patient is not exit. Navigating to register patient page.")
                 registerPatient = true
                 return
