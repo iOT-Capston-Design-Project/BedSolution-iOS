@@ -14,6 +14,5 @@ struct BedSolutionApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(DBContainer.container)
     }
 }
