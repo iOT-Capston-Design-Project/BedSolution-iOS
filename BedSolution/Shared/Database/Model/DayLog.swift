@@ -2,28 +2,20 @@
 //  DayLog.swift
 //  BedSolution
 //
-//  Created by 이재호 on 8/1/25.
+//  Created by 이재호 on 8/13/25.
 //
 
 import Foundation
-import SwiftData
+import Supabase
 
-@Model
-final class DayLog: Codable {
-    @Attribute(.unique) public var id: Int = 0
+nonisolated public struct DayLog: Codable, Identifiable {
+    public var id: Int = 0
     public var accumulatedOcciput: Int = 0
     public var accumulatedScapula: Int = 0
     public var accumulatedElbow: Int = 0
     public var accumulatedHip: Int = 0
     public var accumulatedHeel: Int = 0
-    
-    public var patient: Patient?
-    
-    @Relationship(deleteRule: .cascade, inverse: \PostureLog.dayLog)
-    public var postureLogs: [PostureLog] = []
-    
-    @Relationship(deleteRule: .cascade, inverse: \PressureLog.dayLog)
-    public var pressureLogs: [PressureLog] = []
+    public var patientID: Int = 0
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -35,7 +27,7 @@ final class DayLog: Codable {
         case patientID = "patient_id"
     }
     
-    public required init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
         self.accumulatedOcciput = try container.decode(Int.self, forKey: .accumulatedOcciput)
@@ -53,8 +45,23 @@ final class DayLog: Codable {
         try container.encode(accumulatedElbow, forKey: .accumulatedElbow)
         try container.encode(accumulatedHip, forKey: .accumulatedHip)
         try container.encode(accumulatedHeel, forKey: .accumulatedHeel)
-        try container.encodeIfPresent(patient?.id, forKey: .patientID)
+        try container.encodeIfPresent(patientID, forKey: .patientID)
     }
     
     init() {}
+    
+    init?(row: [String: AnyJSON]) {
+        do {
+            let decoded = try SupabaseCoding.decode(DayLog.self, from: row)
+            self.id = row[CodingKeys.id.rawValue]?.intValue ?? 0
+            self.accumulatedOcciput = decoded.accumulatedOcciput
+            self.accumulatedScapula = decoded.accumulatedScapula
+            self.accumulatedElbow = decoded.accumulatedElbow
+            self.accumulatedHip = decoded.accumulatedHip
+            self.accumulatedHeel = decoded.accumulatedHeel
+            self.patientID = decoded.patientID
+        } catch {
+            return nil
+        }
+    }
 }

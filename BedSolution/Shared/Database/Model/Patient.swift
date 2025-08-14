@@ -2,15 +2,14 @@
 //  Patient.swift
 //  BedSolution
 //
-//  Created by 이재호 on 7/31/25.
+//  Created by 이재호 on 8/13/25.
 //
 
 import Foundation
-import SwiftData
+import Supabase
 
-@Model
-final class Patient: Codable {
-    @Attribute(.unique) public var id: Int = 0
+public struct Patient: Codable, Identifiable {
+    public var id: Int = 0
     public var createdAt: Date = Date()
     public var updatedAt: Date?
     public var uid: UUID = UUID()
@@ -23,8 +22,6 @@ final class Patient: Codable {
     public var cautionHip: Bool = false
     public var cautionHeel: Bool = false
     
-    @Relationship(deleteRule: .cascade, inverse: \DayLog.patient)
-    public var dayLogs: [DayLog] = []
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -41,7 +38,7 @@ final class Patient: Codable {
         case cautionHeel = "caution_heel"
     }
     
-    public required init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
         self.createdAt = try container.decode(Date.self, forKey: .createdAt)
@@ -74,4 +71,46 @@ final class Patient: Codable {
     }
     
     init() {}
+    
+    init?(row: [String: AnyJSON]) {
+        do {
+            let decoded = try SupabaseCoding.decode(Patient.self, from: row)
+            self.id = decoded.id
+            self.createdAt = decoded.createdAt
+            self.updatedAt = decoded.updatedAt
+            self.uid = decoded.uid
+            self.name = decoded.name
+            self.height = decoded.height
+            self.weight = decoded.weight
+            self.cautionOcciput = decoded.cautionOcciput
+            self.cautionScapula = decoded.cautionScapula
+            self.cautionElbow = decoded.cautionElbow
+            self.cautionHip = decoded.cautionHip
+            self.cautionHeel = decoded.cautionHeel
+        } catch {
+            return nil
+        }
+    }
+    
+    init(
+        id: Int?,
+        createdAt: Date, updatedAt: Date? = nil,
+        uid: UUID, name: String, height: Float? = nil, weight: Float? = nil,
+        cautionOcciput: Bool, cautionScapula: Bool, cautionElbow: Bool, cautionHip: Bool, cautionHeel: Bool
+    ) {
+        if let id {
+            self.id = id
+        }
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.uid = uid
+        self.name = name
+        self.height = height
+        self.weight = weight
+        self.cautionOcciput = cautionOcciput
+        self.cautionScapula = cautionScapula
+        self.cautionElbow = cautionElbow
+        self.cautionHip = cautionHip
+        self.cautionHeel = cautionHeel
+    }
 }
