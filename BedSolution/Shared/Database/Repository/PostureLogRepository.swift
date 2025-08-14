@@ -53,8 +53,11 @@ final class PostureLogRepository: RWRepository {
     let table: String = "posture_change_logs"
     private let client: SupabaseClient
     
-    init(client: SupabaseClient) {
-        self.client = client
+    init() {
+        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
+            fatalError("No API key or base URL set")
+        }
+        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
     }
     
     @discardableResult

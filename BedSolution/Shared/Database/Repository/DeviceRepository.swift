@@ -9,7 +9,6 @@ import Foundation
 import Logging
 import Supabase
 
-
 final class DeviceRepository: ReadRepository {
     typealias Element = Device
     
@@ -21,8 +20,11 @@ final class DeviceRepository: ReadRepository {
     private let client: SupabaseClient
     private let logger = Logger(label: "DeviceRepository")
     
-    init(client: SupabaseClient) {
-        self.client = client
+    init() {
+        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
+            fatalError("No API key or base URL set")
+        }
+        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
     }
     
     func get(filter: Filter?) async throws -> Device? {
@@ -33,8 +35,12 @@ final class DeviceRepository: ReadRepository {
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [Device] {
-        guard let filter else { return [] }
-        var builder = buildFilter(filter).order("created_at")
+        var builder: PostgrestTransformBuilder!
+        if let filter {
+            builder = buildFilter(filter).order("created_at")
+        } else {
+            builder = client.from(table).select().order("created_at")
+        }
         if let limit {
             builder = builder.limit(limit)
         }
@@ -44,8 +50,13 @@ final class DeviceRepository: ReadRepository {
     }
     
     func count(filter: Filter?) async throws -> Int {
-        guard let filter else { return 0 }
-        let response = try await buildFilter(filter, head: true).execute()
+        var builder: PostgrestTransformBuilder!
+        if let filter {
+            builder = buildFilter(filter, head: true).order("created_at")
+        } else {
+            builder = client.from(table).select(head: true).order("created_at")
+        }
+        let response = try await builder.execute()
         logger.info("Get response: \(response.response.statusCode)")
         return response.count ?? 0
     }

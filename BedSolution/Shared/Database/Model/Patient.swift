@@ -91,4 +91,26 @@ public struct Patient: Codable, Identifiable {
             return nil
         }
     }
+    
+    init(
+        id: Int?,
+        createdAt: Date, updatedAt: Date? = nil,
+        uid: UUID, name: String, height: Float? = nil, weight: Float? = nil,
+        cautionOcciput: Bool, cautionScapula: Bool, cautionElbow: Bool, cautionHip: Bool, cautionHeel: Bool
+    ) {
+        if let id {
+            self.id = id
+        }
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.uid = uid
+        self.name = name
+        self.height = height
+        self.weight = weight
+        self.cautionOcciput = cautionOcciput
+        self.cautionScapula = cautionScapula
+        self.cautionElbow = cautionElbow
+        self.cautionHip = cautionHip
+        self.cautionHeel = cautionHeel
+    }
 }

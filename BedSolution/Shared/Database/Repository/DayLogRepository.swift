@@ -23,8 +23,11 @@ final class DayLogRepository: ReadRepository {
     private let client: SupabaseClient
     private let logger = Logger(label: "DayLogRepository")
     
-    init(client: SupabaseClient) {
-        self.client = client
+    init() {
+        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
+            fatalError("No API key or base URL set")
+        }
+        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
     }
     
     func get(filter: Filter?) async throws -> DayLog? {

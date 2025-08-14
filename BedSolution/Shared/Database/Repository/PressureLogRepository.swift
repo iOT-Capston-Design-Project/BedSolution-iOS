@@ -21,8 +21,11 @@ final class PressureLogRepository: ReadRepository {
     let table: String = "pressure_logs"
     private let client: SupabaseClient
     
-    init(client: SupabaseClient) {
-        self.client = client
+    init() {
+        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
+            fatalError("No API key or base URL set")
+        }
+        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
     }
     
     func get(filter: Filter?) async throws -> PressureLog? {
