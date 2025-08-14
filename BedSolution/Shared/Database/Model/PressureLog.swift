@@ -2,24 +2,22 @@
 //  PressureLog.swift
 //  BedSolution
 //
-//  Created by 이재호 on 8/1/25.
+//  Created by 이재호 on 8/13/25.
 //
 
 import Foundation
-import SwiftData
+import Supabase
 
-@Model
-final class PressureLog: Codable {
-    @Attribute(.unique) public var id: Int = 0
+nonisolated public struct PressureLog: Codable, Identifiable {
+    public var id: Int = 0
     public var createdAt: Date = Date()
     public var occiput: Int = 0
     public var scapula: Int = 0
     public var elbow: Int = 0
     public var heel: Int = 0
     public var hip: Int = 0
-    
-    public var device: Device?
-    public var dayLog: DayLog?
+    public var deviceID: Int = 0
+    public var dayID: Int?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -33,7 +31,7 @@ final class PressureLog: Codable {
         case dayID = "day_id"
     }
     
-    public required init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
         self.createdAt = try container.decode(Date.self, forKey: .createdAt)
@@ -53,9 +51,26 @@ final class PressureLog: Codable {
         try container.encode(elbow, forKey: .elbow)
         try container.encode(heel, forKey: .heel)
         try container.encode(hip, forKey: .hip)
-        try container.encodeIfPresent(device?.id, forKey: .deviceID)
-        try container.encodeIfPresent(dayLog?.id, forKey: .dayID)
+        try container.encode(deviceID, forKey: .deviceID)
+        try container.encodeIfPresent(dayID, forKey: .dayID)
     }
     
     init() {}
+    
+    init?(row: [String: AnyJSON]) {
+        do {
+            let decoded = try SupabaseCoding.decode(PressureLog.self, from: row)
+            self.id = decoded.id
+            self.createdAt = decoded.createdAt
+            self.occiput = decoded.occiput
+            self.scapula = decoded.scapula
+            self.elbow = decoded.elbow
+            self.heel = decoded.heel
+            self.hip = decoded.hip
+            self.deviceID = decoded.deviceID
+            self.dayID = decoded.dayID
+        } catch {
+            return nil
+        }
+    }
 }
