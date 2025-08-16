@@ -10,6 +10,7 @@ import Supabase
 
 nonisolated public struct DayLog: Codable, Identifiable {
     public var id: Int = 0
+    public var day: Date = .now
     public var accumulatedOcciput: Int = 0
     public var accumulatedScapula: Int = 0
     public var accumulatedElbow: Int = 0
@@ -19,6 +20,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
     
     enum CodingKeys: String, CodingKey {
         case id
+        case day
         case accumulatedOcciput = "accumulated_occiput"
         case accumulatedScapula = "accumulated_scapula"
         case accumulatedElbow = "accumulated_elbow"
@@ -30,6 +32,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
+        self.day = try container.decode(Date.self, forKey: .day)
         self.accumulatedOcciput = try container.decode(Int.self, forKey: .accumulatedOcciput)
         self.accumulatedScapula = try container.decode(Int.self, forKey: .accumulatedScapula)
         self.accumulatedElbow = try container.decode(Int.self, forKey: .accumulatedElbow)
@@ -40,6 +43,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
+        try container.encode(day, forKey: .day)
         try container.encode(accumulatedOcciput, forKey: .accumulatedOcciput)
         try container.encode(accumulatedScapula, forKey: .accumulatedScapula)
         try container.encode(accumulatedElbow, forKey: .accumulatedElbow)
@@ -50,10 +54,31 @@ nonisolated public struct DayLog: Codable, Identifiable {
     
     init() {}
     
+    init(
+        id: Int,
+        day: Date,
+        accumulatedOcciput: Int,
+        accumulatedScapula: Int,
+        accumulatedElbow: Int,
+        accumulatedHip: Int,
+        accumulatedHeel: Int,
+        patientID: Int
+    ) {
+        self.id = id
+        self.day = day
+        self.accumulatedOcciput = accumulatedOcciput
+        self.accumulatedScapula = accumulatedScapula
+        self.accumulatedElbow = accumulatedElbow
+        self.accumulatedHip = accumulatedHip
+        self.accumulatedHeel = accumulatedHeel
+        self.patientID = patientID
+    }
+    
     init?(row: [String: AnyJSON]) {
         do {
             let decoded = try SupabaseCoding.decode(DayLog.self, from: row)
-            self.id = row[CodingKeys.id.rawValue]?.intValue ?? 0
+            self.id = decoded.id
+            self.day = decoded.day
             self.accumulatedOcciput = decoded.accumulatedOcciput
             self.accumulatedScapula = decoded.accumulatedScapula
             self.accumulatedElbow = decoded.accumulatedElbow
@@ -64,4 +89,6 @@ nonisolated public struct DayLog: Codable, Identifiable {
             return nil
         }
     }
+    
+    
 }

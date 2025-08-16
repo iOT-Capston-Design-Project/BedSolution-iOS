@@ -41,9 +41,9 @@ public struct PostureLog: Codable, Identifiable {
         try container.encodeIfPresent(dayID, forKey: .dayID)
     }
     
-    init(id: Int, memo: String? = nil, imgURL: String? = nil, dayID: Int) {
+    init(id: Int, createdAt: Date, memo: String? = nil, imgURL: String? = nil, dayID: Int) {
         self.id = id
-        self.createdAt = Date.now
+        self.createdAt = createdAt
         self.memo = memo
         self.imgURL = imgURL
         self.dayID = dayID
