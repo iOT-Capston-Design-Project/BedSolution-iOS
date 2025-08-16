@@ -33,6 +33,7 @@ struct PatientSummaryView: View {
     @State private var tabX: CGFloat = .zero
     @Namespace private var tabbarSpace
     private let tabHeight: CGFloat = 45
+    var patient: Patient
     
     var body: some View {
         VStack(spacing: 5) {
@@ -96,6 +97,6 @@ struct PatientSummaryView: View {
 
 #Preview {
     NavigationStack {
-        PatientSummaryView()
+        PatientSummaryView(patient: Patient())
     }
 }

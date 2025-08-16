@@ -8,15 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedPatient: Patient?
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationSplitView {
+            PatientList(selection: $selectedPatient)
+        } detail: {
+            if let selectedPatient {
+                PatientSummaryView(patient: selectedPatient)
+            } else {
+                Text("NON")
+            }
         }
-        .padding()
     }
+    
 }
 
 #Preview {

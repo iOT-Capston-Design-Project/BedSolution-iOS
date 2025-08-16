@@ -8,7 +8,7 @@
 import Foundation
 import Supabase
 
-public struct Patient: Codable, Identifiable {
+public struct Patient: Codable, Hashable, Identifiable {
     public var id: Int = 0
     public var createdAt: Date = Date()
     public var updatedAt: Date?
