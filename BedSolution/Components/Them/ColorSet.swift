@@ -59,6 +59,16 @@ private struct BackgroundColorSetModifier: ViewModifier {
     }
 }
 
+private struct TintColorSetModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    var colorSet: ColorSet
+    
+    func body(content: Content) -> some View {
+        content
+            .tint(colorScheme == .dark ? Color(hex: colorSet.dark) : Color(hex: colorSet.light))
+    }
+}
+
 
 extension View {
     public func foregroundColorSet(_ colorSet: ColorSet) -> some View {
@@ -71,5 +81,9 @@ extension View {
     
     public func backgroundColorSet(_ colorSet: ColorSet, ignoresSafeAreaEdges: Edge.Set = .all) -> some View {
         modifier(BackgroundColorSetModifier(colorSet: colorSet, ignoresSafeAreaEdges: ignoresSafeAreaEdges))
+    }
+    
+    public func tintColorSet(_ colorSet: ColorSet) -> some View {
+        modifier(TintColorSetModifier(colorSet: colorSet))
     }
 }
