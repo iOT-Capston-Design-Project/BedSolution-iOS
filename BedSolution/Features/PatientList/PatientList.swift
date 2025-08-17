@@ -31,6 +31,7 @@ struct PatientList: View {
         List(selection: $selection) {
             ForEach(patients) { patient in
                 PatientCell(patient: patient)
+                    .listRowBackground(RoundedRectangle(cornerRadius: 16).foregroundColorSet(theme.colorTheme.surfaceContainer))
                     .tag(patient)
                     .swipeActions(allowsFullSwipe: false) {
                         Button(action: {}) {
@@ -40,8 +41,22 @@ struct PatientList: View {
                     }
             }
         }
+        .listRowSpacing(6)
         .scrollContentBackground(.hidden)
         .backgroundColorSet(theme.colorTheme.surface)
+        .overlay {
+            if patients.isEmpty {
+                EmptyPatientView()
+                    .transition(.opacity)
+            }
+        }
+        .toolbar {
+            ToolbarItem {
+                Button(action: {}) {
+                    Label("환자 추가", systemImage: "plus")
+                }
+            }
+        }
         .navigationTitle(Text("환자 목록"))
     }
 }

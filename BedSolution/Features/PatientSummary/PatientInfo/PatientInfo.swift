@@ -13,6 +13,7 @@ struct PatientInfo: View {
         case custom(CGFloat, CGFloat, CGFloat, CGFloat) // TL TR BL BR
     }
     @Environment(\.theme) private var theme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var patient = Patient(id: 0, createdAt: .now, uid: UUID(), name: "홍길동", cautionOcciput: true, cautionScapula: true, cautionElbow: false, cautionHip: false, cautionHeel: true)
     
     var body: some View {
@@ -25,8 +26,12 @@ struct PatientInfo: View {
                         .multilineTextAlignment(.trailing)
                 }
                 .scrollDismissAnimation()
-                fieldSection {
-                    field(label: "주요 알림 부위", axis: .vertical, style: .top) {
+                fieldSection(axis: horizontalSizeClass == .compact ? .vertical : .horizontal) {
+                    field(
+                        label: "주요 알림 부위",
+                        axis: .vertical,
+                        style: .custom(15, horizontalSizeClass == .compact ? 15 : 0, horizontalSizeClass == .compact ? 0 : 15, 0)
+                    ) {
                         HumanConfig(
                             cautionOcciput: $patient.cautionOcciput,
                             cautionScapula: $patient.cautionScapula,
@@ -38,36 +43,46 @@ struct PatientInfo: View {
                         .padding(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
                     }
                     .scrollDismissAnimation()
-                    field(label: "뒤통수", style: .middle) {
-                        Toggle("뒤통수", isOn: $patient.cautionOcciput)
-                            .labelsHidden()
-                            .tintColorSet(theme.colorTheme.error)
+                    fieldSection {
+                        field(
+                            label: "뒤통수",
+                            style: .custom(0, horizontalSizeClass == .compact ? 0: 15, 0, 0),
+                            expand: horizontalSizeClass != .compact
+                        ) {
+                            Toggle("뒤통수", isOn: $patient.cautionOcciput)
+                                .labelsHidden()
+                                .tintColorSet(theme.colorTheme.error)
+                        }
+                        .scrollDismissAnimation()
+                        field(label: "견갑골", style: .middle, expand: horizontalSizeClass != .compact) {
+                            Toggle("견갑골", isOn: $patient.cautionScapula)
+                                .labelsHidden()
+                                .tintColorSet(theme.colorTheme.error)
+                        }
+                        .scrollDismissAnimation()
+                        field(label: "팔꿈치", style: .middle, expand: horizontalSizeClass != .compact) {
+                            Toggle("팔꿈치", isOn: $patient.cautionElbow)
+                                .labelsHidden()
+                                .tintColorSet(theme.colorTheme.error)
+                        }
+                        .scrollDismissAnimation()
+                        field(label: "엉덩뼈", style: .middle, expand: horizontalSizeClass != .compact) {
+                            Toggle("엉덩뼈", isOn: $patient.cautionHip)
+                                .labelsHidden()
+                                .tintColorSet(theme.colorTheme.error)
+                        }
+                        .scrollDismissAnimation()
+                        field(
+                            label: "발꿈치",
+                            style: .custom(0, 0, horizontalSizeClass == .compact ? 15 : 0, 15),
+                            expand: horizontalSizeClass != .compact
+                        ) {
+                            Toggle("발꿈치", isOn: $patient.cautionHeel)
+                                .labelsHidden()
+                                .tintColorSet(theme.colorTheme.error)
+                        }
+                        .scrollDismissAnimation()
                     }
-                    .scrollDismissAnimation()
-                    field(label: "견갑골", style: .middle) {
-                        Toggle("견갑골", isOn: $patient.cautionScapula)
-                            .labelsHidden()
-                            .tintColorSet(theme.colorTheme.error)
-                    }
-                    .scrollDismissAnimation()
-                    field(label: "팔꿈치", style: .middle) {
-                        Toggle("팔꿈치", isOn: $patient.cautionElbow)
-                            .labelsHidden()
-                            .tintColorSet(theme.colorTheme.error)
-                    }
-                    .scrollDismissAnimation()
-                    field(label: "엉덩뼈", style: .middle) {
-                        Toggle("엉덩뼈", isOn: $patient.cautionHip)
-                            .labelsHidden()
-                            .tintColorSet(theme.colorTheme.error)
-                    }
-                    .scrollDismissAnimation()
-                    field(label: "발꿈치", style: .bottom) {
-                        Toggle("발꿈치", isOn: $patient.cautionHeel)
-                            .labelsHidden()
-                            .tintColorSet(theme.colorTheme.error)
-                    }
-                    .scrollDismissAnimation()
                 }
                 fieldSection {
                     field(label: "키", style: .top) {
@@ -110,6 +125,7 @@ struct PatientInfo: View {
         label: LocalizedStringResource,
         axis: Axis = .horizontal,
         style: FieldStyle = .single,
+        expand: Bool = false,
         @ViewBuilder content: () -> V
     ) -> some View {
         let tl: CGFloat = switch style {
@@ -176,7 +192,7 @@ struct PatientInfo: View {
             content()
         }
         .padding(EdgeInsets(top: 8, leading: 17, bottom: 8, trailing: 17))
-        .frame(minHeight: 50)
+        .frame(minHeight: 50, maxHeight: expand ? .infinity: nil)
         .backgroundColorSet(
             theme.colorTheme.surfaceContainer,
             in: RoundedCorner(
@@ -189,16 +205,29 @@ struct PatientInfo: View {
     }
     
     @ViewBuilder
-    private func fieldSection<V: View>(@ViewBuilder content: ()->V) -> some View {
-        VStack(spacing: 0) {
+    private func fieldSection<V: View>(axis: Axis = .vertical, @ViewBuilder content: ()->V) -> some View {
+        let layout = switch axis {
+        case .horizontal:
+            AnyLayout(HStackLayout(spacing: 0))
+        case .vertical:
+            AnyLayout(VStackLayout(spacing: 0))
+        }
+        layout {
             Group(subviews: content()) { collection in
                 if let first = collection.first {
                     first
                 }
                 ForEach(collection.dropFirst()) { subview in
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundColorSet(theme.colorTheme.outline)
+                    switch axis {
+                    case .horizontal:
+                        Rectangle()
+                            .frame(width: 1)
+                            .foregroundColorSet(theme.colorTheme.outline)
+                    case .vertical:
+                        Rectangle()
+                            .frame(height: 1)
+                            .foregroundColorSet(theme.colorTheme.outline)
+                    }
                     subview
                 }
             }

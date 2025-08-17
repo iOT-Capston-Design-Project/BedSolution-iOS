@@ -17,7 +17,7 @@ struct ContentView: View {
             if let selectedPatient {
                 PatientSummaryView(patient: selectedPatient)
             } else {
-                Text("NON")
+                NoPatientSelectionView()
             }
         }
     }
