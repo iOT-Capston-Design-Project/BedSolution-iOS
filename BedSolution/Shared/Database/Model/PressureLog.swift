@@ -8,7 +8,7 @@
 import Foundation
 import Supabase
 
-nonisolated public struct PressureLog: Codable, Identifiable {
+nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
     public var id: Int = 0
     public var createdAt: Date = Date()
     public var occiput: Int = 0
@@ -72,5 +72,17 @@ nonisolated public struct PressureLog: Codable, Identifiable {
         } catch {
             return nil
         }
+    }
+    
+    init(id: Int, createdAt: Date, occiput: Int, scapula: Int, elbow: Int, heel: Int, hip: Int, deviceID: Int, dayID: Int? = nil) {
+        self.id = id
+        self.createdAt = createdAt
+        self.occiput = occiput
+        self.scapula = scapula
+        self.elbow = elbow
+        self.heel = heel
+        self.hip = hip
+        self.deviceID = deviceID
+        self.dayID = dayID
     }
 }

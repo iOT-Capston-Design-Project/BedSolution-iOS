@@ -13,6 +13,7 @@ struct CurrentPatientState: View {
     @State private var postureLogs: [PostureLog] = (0..<20).map { id in
         PostureLog(id: id, createdAt: Calendar.current.date(byAdding: .hour, value: -id, to: .now)!, memo: "TEST \(id)", dayID: 0)
     }
+    @State private var selectedPostureLog: PostureLog?
     
     var body: some View {
         ScrollView(.vertical) {
@@ -33,8 +34,13 @@ struct CurrentPatientState: View {
                         .textStyle(theme.textTheme.emphasizedTitleMedium)
                         .foregroundColorSet(theme.colorTheme.onSurface)
                     ForEach(postureLogs) { postureLog in
-                        PostureLogCell(postureLog: postureLog, onSelect: {})
-                            .scrollDismissAnimation()
+                        PostureLogCell(
+                            postureLog: postureLog,
+                            onSelect: {
+                                selectedPostureLog = postureLog
+                            }
+                        )
+                        .scrollDismissAnimation()
                     }
                 }
             }
@@ -42,6 +48,10 @@ struct CurrentPatientState: View {
         .contentMargins(.horizontal, 12, for: .scrollContent)
         .contentMargins(.top, 10, for: .scrollContent)
         .scrollIndicators(.never)
+        .sheet(item: $selectedPostureLog) { postureLog in
+            PostureLogDetail(postureLog: postureLog)
+                .presentationDetents([.medium])
+        }
     }
 }
 

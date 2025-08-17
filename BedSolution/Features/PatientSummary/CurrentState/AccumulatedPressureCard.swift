@@ -10,6 +10,7 @@ import SwiftUI
 struct AccumulatedPressureCard: View {
     @Environment(\.theme) private var theme
     private let columns = Array(repeating: GridItem(), count: 2)
+    var caption: LocalizedStringResource = "자세 변경 이후 누적된 압력 시간입니다."
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -23,7 +24,7 @@ struct AccumulatedPressureCard: View {
                 PressureInfo(region: "엉덩뼈", period: 60*60+60*40)
                 PressureInfo(region: "발꿈치", period: 60*60)
             }
-            Text("자세 변경 이후 누적된 압력 시간입니다.")
+            Text(caption)
                 .textStyle(theme.textTheme.labelSmall)
                 .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
                 .frame(maxWidth: .infinity, alignment: .trailing)

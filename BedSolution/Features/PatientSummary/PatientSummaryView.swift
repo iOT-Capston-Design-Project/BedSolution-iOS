@@ -31,6 +31,7 @@ struct PatientSummaryView: View {
     @State private var tabSize: CGFloat = .zero
     @State private var selectedTab = TabItems.summary
     @State private var tabX: CGFloat = .zero
+    @State private var addPosture: Bool = false
     @Namespace private var tabbarSpace
     private let tabHeight: CGFloat = 45
     var patient: Patient
@@ -70,8 +71,19 @@ struct PatientSummaryView: View {
             }
         }
         .backgroundColorSet(theme.colorTheme.surface)
+        .toolbar {
+            ToolbarItem {
+                Button(action: { addPosture.toggle() }) {
+                    Label("자세 기록", systemImage: "figure")
+                }
+            }
+        }
         .navigationTitle(Text("환자 이름"))
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $addPosture) {
+            PostureLogEditor()
+                .presentationDetents([.medium])
+        }
     }
     
     @ViewBuilder

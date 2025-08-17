@@ -15,11 +15,10 @@ struct PastLogs: View {
     // Scroll view position
     @State private var scrollPosition = ScrollPosition(y: 0)
     @State private var rightX: CGFloat = 0
-    
     @State private var dayLogs: [DayLog] = (0..<20).map { id in
         DayLog(id: id, day: Calendar.current.date(byAdding: .day, value: -id, to: .now)!, accumulatedOcciput: 10, accumulatedScapula: 10, accumulatedElbow: 10, accumulatedHip: 10, accumulatedHeel: 10, patientID: 0)
     }
-    
+    @State private var selectedLog: DayLog? = nil
     private let rowHeight: CGFloat = 55
     private let headerHeight: CGFloat = 40
     private let columnWidth: CGFloat = 120
@@ -58,6 +57,9 @@ struct PastLogs: View {
                                         .foregroundColorSet(theme.colorTheme.outline)
                                 }
                                 .id(log.id)
+                                .onTapGesture {
+                                    selectedLog = log
+                                }
                         }
                     }
                     .frame(width: columnWidth)
@@ -81,6 +83,9 @@ struct PastLogs: View {
                                     Rectangle()
                                         .frame(height: 1)
                                         .foregroundColorSet(theme.colorTheme.outline)
+                                }
+                                .onTapGesture {
+                                    selectedLog = log
                                 }
                             }
                         }
@@ -134,6 +139,9 @@ struct PastLogs: View {
                     .frame(height: 1)
                     .foregroundColorSet(theme.colorTheme.outline)
             }
+        }
+        .sheet(item: $selectedLog) { log in
+            PatientLogDetailView()
         }
     }
     

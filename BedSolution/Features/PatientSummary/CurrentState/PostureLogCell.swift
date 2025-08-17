@@ -18,7 +18,7 @@ struct PostureLogCell: View {
                 .textStyle(theme.textTheme.emphasizedTitleSmall)
                 .foregroundColorSet(theme.colorTheme.onSurface)
             Spacer()
-            Button(action: {}) {
+            Button(action: onSelect) {
                 Text("자세 확인")
                     .textStyle(theme.textTheme.emphasizedLabelLarge)
             }
