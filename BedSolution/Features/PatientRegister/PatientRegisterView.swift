@@ -115,7 +115,8 @@ struct PatientRegisterView: View {
             }
         }
         .navigationTitle(Text("환자 등록"))
-        .navigationBarHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .interactiveDismissDisabled(step == .registering)
         .alert("등록 실패", isPresented: $registerFailed) {
             Button(action: { withAnimation { self.step = .caution } }) {
                 Text("확인")

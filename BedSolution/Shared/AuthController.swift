@@ -51,17 +51,16 @@ class AuthController {
         }
     }
     
-    func loadPatient() async -> Bool {
+    func isPatientRegistered() async -> Bool {
         guard let uid = client.auth.currentUser?.id else {
             logger.error("User not signed in")
             return false
         }
         do {
-            let result = try await patientRepository.list(filter: .init(uid: uid), limit: nil)
-            patients = result
-            return result.count > 0
+            let count = try await patientRepository.count(filter: .init(uid: uid))
+            return count > 0
         } catch {
-            logger.error("Fail to get patient: \(error)")
+            logger.error("Fail to get patient count: \(error)")
             return false
         }
     }
@@ -95,7 +94,7 @@ class AuthController {
             for await (event, session) in client.auth.authStateChanges {
                 self.logger.info("User session changed: \(event)")
                 if let user = session?.user {
-                    self.isSignIn = await self.loadPatient()
+                    self.isSignIn = await self.isPatientRegistered()
                     self.email = user.email ?? ""
                 } else {
                     self.isSignIn = false

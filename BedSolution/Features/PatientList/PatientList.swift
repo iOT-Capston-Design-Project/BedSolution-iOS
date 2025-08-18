@@ -25,6 +25,7 @@ struct PatientList: View {
             cautionHeel: false
         )
     }
+    @State private var addPatient = false
     @Binding var selection: Patient?
     
     var body: some View {
@@ -52,12 +53,18 @@ struct PatientList: View {
         }
         .toolbar {
             ToolbarItem {
-                Button(action: {}) {
+                Button(action: { addPatient.toggle() }) {
                     Label("환자 추가", systemImage: "plus")
                 }
             }
         }
         .navigationTitle(Text("환자 목록"))
+        .sheet(isPresented: $addPatient) {
+            NavigationStack {
+                PatientRegisterView()
+            }
+            .presentationDetents([.large])
+        }
     }
 }
 

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var authController = AuthController.shared
     @State private var selectedPatient: Patient?
     
     var body: some View {
@@ -20,6 +21,13 @@ struct ContentView: View {
                 NoPatientSelectionView()
             }
         }
+        .overlay {
+            if !authController.isSignIn {
+                SignUpView()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.default, value: authController.isSignIn)
     }
     
 }

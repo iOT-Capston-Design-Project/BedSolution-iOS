@@ -16,20 +16,6 @@ struct PostureLogEditor: View {
     @State private var selectedImage: Image?
     @State private var onLoading: Bool = false
     
-    private var loadIndicator: some View {
-        VStack(spacing: 0) {
-            Image(.load)
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 200, height: 200)
-                .foregroundColorSet(theme.colorTheme.onSurface)
-            Text("사진 불러오는 중")
-                .textStyle(theme.textTheme.bodyLarge)
-                .foregroundColorSet(theme.colorTheme.onSurface)
-        }
-    }
-    
     var body: some View {
         VStack {
             Text("자세 변경 기록")
@@ -38,13 +24,22 @@ struct PostureLogEditor: View {
                 .frame(height: 45)
             Spacer()
             if onLoading {
-                loadIndicator
-                    .transition(.scale)
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .transition(.opacity)
             } else if let selectedImage {
                 selectedImage
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .overlay(alignment: .bottom) {
+                        Button(action: { showPhotoPicker.toggle() }) {
+                            Label("다른 사진 불러오기", systemImage: "camera")
+                                .textStyle(theme.textTheme.labelMedium)
+                        }
+                        .buttonStyle(type: .chip, option: .fiilled, primary: theme.colorTheme.surfaceContainerLowest, onPrimary: theme.colorTheme.onSurfaceVarient)
+                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                    }
                     .transition(.blurReplace)
             } else {
                 VStack {
@@ -60,7 +55,13 @@ struct PostureLogEditor: View {
                 .transition(.opacity)
             }
             Spacer()
-            Button(action: { showPhotoPicker.toggle() }) {
+            Button(action: {
+                if selectedImage != nil {
+                    registerLog()
+                } else {
+                    showPhotoPicker.toggle()
+                }
+            }) {
                 Text("기록하기")
                     .textStyle(theme.textTheme.emphasizedLabelLarge)
                     .frame(maxWidth: .infinity)
@@ -82,6 +83,7 @@ struct PostureLogEditor: View {
                 primary: theme.colorTheme.primary, onPrimary: theme.colorTheme.onPrimary
             )
         }
+        .padding(EdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15))
         .backgroundColorSet(theme.colorTheme.surface)
         .photosPicker(isPresented: $showPhotoPicker, selection: $selectedItem)
         .onChange(of: selectedItem) { _, selection in
@@ -118,6 +120,10 @@ struct PostureLogEditor: View {
             }
             withAnimation { onLoading = false }
         }
+    }
+    
+    private func registerLog() {
+        
     }
 }
 

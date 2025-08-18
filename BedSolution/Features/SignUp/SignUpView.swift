@@ -218,7 +218,7 @@ struct SignUpView: View {
                 signupError = .signupFailed
                 return
             }
-            if !(await authController.loadPatient()) {
+            if !(await authController.isPatientRegistered()) {
                 logger.info("Patient is not exit. Navigating to register patient page.")
                 registerPatient = true
                 return
@@ -243,7 +243,7 @@ struct SignUpView: View {
                 signupError = .signinFailed
                 return
             }
-            if !(await authController.loadPatient()) {
+            if !(await authController.isPatientRegistered()) {
                 logger.info("Patient is not exit. Navigating to register patient page.")
                 registerPatient = true
                 return
