@@ -54,14 +54,14 @@ final class DeviceRepository: ReadRepository {
         if let filter {
             builder = buildFilter(filter, head: true).order("created_at")
         } else {
-            builder = client.from(table).select(head: true).order("created_at")
+            builder = client.from(table).select(head: true, count: .exact).order("created_at")
         }
         let response = try await builder.execute()
         logger.info("Get response: \(response.response.statusCode)")
         return response.count ?? 0
     }
     
-    private func buildFilter(_ filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
-        return client.from(table).select(head: head).eq("id", value: filter.deviceID)
+    private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
+        return client.from(table).select(head: head, count: head ? count: nil).eq("id", value: filter.deviceID)
     }
 }

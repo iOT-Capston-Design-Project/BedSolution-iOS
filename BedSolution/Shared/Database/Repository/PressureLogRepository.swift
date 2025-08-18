@@ -49,8 +49,8 @@ final class PressureLogRepository: ReadRepository {
         return try await self.buildFilter(filter, head: true).execute().count ?? 0
     }
     
-    private func buildFilter(_ filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
-        var builder = client.from(table).select(head: head)
+    private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
+        var builder = client.from(table).select(head: head, count: head ? count: nil)
             .eq("device_id", value: filter.deviceID)
         if let id = filter.id {
             builder = builder.eq("id", value: id)

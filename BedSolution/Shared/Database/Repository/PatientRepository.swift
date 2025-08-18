@@ -118,12 +118,16 @@ final class PatientRepository: RWRepository {
     func count(filter: Filter?) async throws -> Int {
         guard let filter else { return 0 }
         let response = try await buildFilter(filter, head: true).execute()
-        return response.count ?? 0
+        if let count = response.count {
+            return count
+        }
+        logger.error("No count field in the response", metadata: ["response": .stringConvertible(response.response)])
+        return 0
     }
     
-    private func buildFilter(_ filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
+    private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
         var builder = client.from(table)
-            .select(head: head)
+            .select(head: head, count: head ? count: nil)
             .eq("uid", value: filter.uid)
         if let id = filter.id {
             builder = builder.eq("id", value: id)

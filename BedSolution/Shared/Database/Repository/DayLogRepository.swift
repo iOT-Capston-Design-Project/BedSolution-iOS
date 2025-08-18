@@ -57,9 +57,9 @@ final class DayLogRepository: ReadRepository {
         return response.count ?? 0
     }
     
-    private func buildFilter(_ filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
+    private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
         var builder = client.from(table)
-            .select(head: head)
+            .select(head: head, count: head ? count: nil)
             .eq("patient_id", value: filter.patientID)
         if let day = filter.day {
             builder = builder

@@ -95,12 +95,12 @@ final class PostureLogRepository: RWRepository {
         if let filter {
             return try await buildFilter(filter: filter, head: true).execute().count ?? 0
         } else {
-            return try await client.from(table).select(head: true).execute().count ?? 0
+            return try await client.from(table).select(head: true, count: .exact).execute().count ?? 0
         }
     }
     
-    private func buildFilter(filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
-        var builder = client.from(table).select(head: head)
+    private func buildFilter(filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
+        var builder = client.from(table).select(head: head, count: head ? count: nil)
         if let dayID = filter.dayID {
             builder = builder.eq("day_id", value: dayID)
         }
