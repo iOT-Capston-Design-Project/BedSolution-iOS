@@ -30,5 +30,5 @@ struct PostureLogCell: View {
 }
 
 #Preview {
-    PostureLogCell(postureLog: PostureLog(id: 0, createdAt: .now, memo: "TEST", dayID: 0), onSelect: {})
+    PostureLogCell(postureLog: PostureLog(id: 0, createdAt: .now, memo: "TEST", dayID: 0, patientID: 0), onSelect: {})
 }

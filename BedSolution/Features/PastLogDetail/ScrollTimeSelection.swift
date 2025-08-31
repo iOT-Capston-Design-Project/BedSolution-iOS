@@ -57,7 +57,7 @@ struct ScrollTimeSelection: View {
                 elbow: 40,
                 heel: 95,
                 hip: 50,
-                deviceID: 101
+                dayID: 101
             ),
             PressureLog(
                 id: 2,
@@ -67,7 +67,7 @@ struct ScrollTimeSelection: View {
                 elbow: 45,
                 heel: 88,
                 hip: 60,
-                deviceID: 101
+                dayID: 101
             ),
             PressureLog(
                 id: 3,
@@ -77,7 +77,7 @@ struct ScrollTimeSelection: View {
                 elbow: 42,
                 heel: 80,
                 hip: 58,
-                deviceID: 102
+                dayID: 102
             )
         ]
     )

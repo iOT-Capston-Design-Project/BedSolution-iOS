@@ -13,7 +13,7 @@ final class DayLogRepository: ReadRepository {
     typealias Element = DayLog
     
     struct Filter {
-        var patientID: Int
+        var deviceID: Int
         var day: Date?
         var minDate: Date?
         var maxDate: Date?
@@ -40,7 +40,7 @@ final class DayLogRepository: ReadRepository {
     
     func list(filter: Filter?, limit: Int?) async throws -> [DayLog] {
         guard let filter else { return [] }
-        var builder = buildFilter(filter).order("day")
+        var builder = buildFilter(filter).order(DayLog.CodingKeys.day.rawValue)
         if let limit {
             builder = builder.limit(limit)
         }
@@ -60,20 +60,20 @@ final class DayLogRepository: ReadRepository {
     private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
         var builder = client.from(table)
             .select(head: head, count: head ? count: nil)
-            .eq("patient_id", value: filter.patientID)
+            .eq(DayLog.CodingKeys.deviceID.rawValue, value: filter.deviceID)
         if let day = filter.day {
             builder = builder
-                .eq("day", value: day.formatted(.iso8601))
+                .eq(DayLog.CodingKeys.day.rawValue, value: day.formatted(.iso8601))
         } else if let minDate = filter.minDate, let maxDate = filter.maxDate {
             builder = builder
-                .gt("day", value: minDate.formatted(.iso8601))
-                .lt("day", value: maxDate.formatted(.iso8601))
+                .gt(DayLog.CodingKeys.day.rawValue, value: minDate.formatted(.iso8601))
+                .lt(DayLog.CodingKeys.day.rawValue, value: maxDate.formatted(.iso8601))
         } else if let minDate = filter.minDate {
             builder = builder
-                .gt("day", value: minDate.formatted(.iso8601))
+                .gt(DayLog.CodingKeys.day.rawValue, value: minDate.formatted(.iso8601))
         } else if let maxDate = filter.maxDate {
             builder = builder
-                .lt("day", value: maxDate.formatted(.iso8601))
+                .lt(DayLog.CodingKeys.day.rawValue, value: maxDate.formatted(.iso8601))
         }
         return builder
     }

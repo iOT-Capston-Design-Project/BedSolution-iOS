@@ -30,6 +30,7 @@ final class PatientRepository: RWRepository {
         let cautionElbow: Bool
         let cautionHip: Bool
         let cautionHeel: Bool
+        let deviceID: Int?
         
         enum CodingKeys: String, CodingKey {
             case id
@@ -44,6 +45,7 @@ final class PatientRepository: RWRepository {
             case cautionElbow = "caution_elbow"
             case cautionHip = "caution_hip"
             case cautionHeel = "caution_heel"
+            case deviceID = "device_id"
         }
         
         func encode(to encoder: Encoder) throws {
@@ -60,6 +62,7 @@ final class PatientRepository: RWRepository {
             try container.encode(cautionElbow, forKey: .cautionElbow)
             try container.encode(cautionHip, forKey: .cautionHip)
             try container.encode(cautionHeel, forKey: .cautionHeel)
+            try container.encodeIfPresent(deviceID, forKey: .deviceID)
         }
         
         init(origin: Patient) {
@@ -75,6 +78,7 @@ final class PatientRepository: RWRepository {
             self.cautionElbow = origin.cautionElbow
             self.cautionHip = origin.cautionHip
             self.cautionHeel = origin.cautionHeel
+            self.deviceID = origin.deviceID
         }
     }
     
@@ -94,7 +98,7 @@ final class PatientRepository: RWRepository {
         let dto = PatientDTO(origin: element)
         let response = try await client
             .from(table)
-            .upsert(dto, onConflict: "id", returning: .representation)
+            .upsert(dto, onConflict: Patient.CodingKeys.id.rawValue, returning: .representation)
             .execute()
         return response.data
     }
@@ -107,12 +111,17 @@ final class PatientRepository: RWRepository {
     
     func list(filter: Filter?, limit: Int?) async throws -> [Patient] {
         guard let filter else { return [] }
-        var builder = buildFilter(filter).order("name")
+        var builder = buildFilter(filter).order(Patient.CodingKeys.name.rawValue)
         if let limit {
             builder = builder.limit(limit)
         }
         let response = try await builder.execute()
-        return try JSONDecoder().decode([Patient].self, from: response.data)
+        do {
+            return try JSONDecoder().decode([Patient].self, from: response.data)
+        } catch {
+            logger.critical("Fail to decode Patient from JSON", metadata: ["error": .string(error.localizedDescription)])
+            throw error
+        }
     }
     
     func count(filter: Filter?) async throws -> Int {
@@ -128,9 +137,9 @@ final class PatientRepository: RWRepository {
     private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
         var builder = client.from(table)
             .select(head: head, count: head ? count: nil)
-            .eq("uid", value: filter.uid)
+            .eq(Patient.CodingKeys.uid.rawValue, value: filter.uid)
         if let id = filter.id {
-            builder = builder.eq("id", value: id)
+            builder = builder.eq(Patient.CodingKeys.id.rawValue, value: id)
         }
         return builder
     }

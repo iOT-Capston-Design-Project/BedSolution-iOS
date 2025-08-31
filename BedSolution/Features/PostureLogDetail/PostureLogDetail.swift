@@ -64,7 +64,7 @@ struct PostureLogDetail: View {
             createdAt: .now,
             memo: "TEST MEMO",
             imgURL: "https://thumbs.dreamstime.com/b/young-caucasian-male-patient-bed-talking-to-doctor-hospital-room-young-caucasian-male-patient-bed-talking-to-doctor-169415346.jpg",
-            dayID: 0
+            dayID: 0, patientID: 0
         )
     )
 }
@@ -76,7 +76,7 @@ struct PostureLogDetail: View {
             createdAt: .now,
             memo: "TEST MEMO",
             imgURL: nil,
-            dayID: 0
+            dayID: 0, patientID: 0
         )
     )
 }

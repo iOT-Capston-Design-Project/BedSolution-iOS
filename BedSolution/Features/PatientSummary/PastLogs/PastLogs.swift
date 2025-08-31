@@ -16,7 +16,7 @@ struct PastLogs: View {
     @State private var scrollPosition = ScrollPosition(y: 0)
     @State private var rightX: CGFloat = 0
     @State private var dayLogs: [DayLog] = (0..<20).map { id in
-        DayLog(id: id, day: Calendar.current.date(byAdding: .day, value: -id, to: .now)!, accumulatedOcciput: 10, accumulatedScapula: 10, accumulatedElbow: 10, accumulatedHip: 10, accumulatedHeel: 10, patientID: 0)
+        DayLog(id: id, day: Calendar.current.date(byAdding: .day, value: -id, to: .now)!, accumulatedOcciput: 10, accumulatedScapula: 10, accumulatedElbow: 10, accumulatedHip: 10, accumulatedHeel: 10, deviceID: 0)
     }
     @State private var selectedLog: DayLog? = nil
     private let rowHeight: CGFloat = 55

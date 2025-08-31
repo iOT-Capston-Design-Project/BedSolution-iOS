@@ -31,6 +31,10 @@ class AuthController {
         _listenUserSession()
     }
     
+    func getUID() -> UUID? {
+        client.auth.currentUser?.id
+    }
+    
     func signin(email: String, password: String) async -> Bool {
         do {
             _ = try await client.auth.signIn(email: email, password: password)

@@ -16,7 +16,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
     public var accumulatedElbow: Int = 0
     public var accumulatedHip: Int = 0
     public var accumulatedHeel: Int = 0
-    public var patientID: Int = 0
+    public var deviceID: Int = 0
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -26,7 +26,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
         case accumulatedElbow = "accumulated_elbow"
         case accumulatedHip = "accumulated_hip"
         case accumulatedHeel = "accumulated_heel"
-        case patientID = "patient_id"
+        case deviceID = "device_id"
     }
     
     public init(from decoder: Decoder) throws {
@@ -49,7 +49,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
         try container.encode(accumulatedElbow, forKey: .accumulatedElbow)
         try container.encode(accumulatedHip, forKey: .accumulatedHip)
         try container.encode(accumulatedHeel, forKey: .accumulatedHeel)
-        try container.encodeIfPresent(patientID, forKey: .patientID)
+        try container.encodeIfPresent(deviceID, forKey: .deviceID)
     }
     
     init() {}
@@ -62,7 +62,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
         accumulatedElbow: Int,
         accumulatedHip: Int,
         accumulatedHeel: Int,
-        patientID: Int
+        deviceID: Int
     ) {
         self.id = id
         self.day = day
@@ -71,7 +71,7 @@ nonisolated public struct DayLog: Codable, Identifiable {
         self.accumulatedElbow = accumulatedElbow
         self.accumulatedHip = accumulatedHip
         self.accumulatedHeel = accumulatedHeel
-        self.patientID = patientID
+        self.deviceID = deviceID
     }
     
     init?(row: [String: AnyJSON]) {
@@ -84,11 +84,10 @@ nonisolated public struct DayLog: Codable, Identifiable {
             self.accumulatedElbow = decoded.accumulatedElbow
             self.accumulatedHip = decoded.accumulatedHip
             self.accumulatedHeel = decoded.accumulatedHeel
-            self.patientID = decoded.patientID
+            self.deviceID = decoded.deviceID
         } catch {
             return nil
         }
     }
-    
     
 }

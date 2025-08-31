@@ -12,6 +12,7 @@ final class PostureLogRepository: RWRepository {
     typealias Element = PostureLog
     
     struct Filter {
+        var patientID: Int
         var minDate: Date?
         var dayID: Int?
         var id: Int?
@@ -23,6 +24,7 @@ final class PostureLogRepository: RWRepository {
         public let memo: String?
         public let imgURL: String?
         public let dayID: Int
+        public let patientID: Int
         
         enum CodingKeys: String, CodingKey {
             case id
@@ -30,6 +32,7 @@ final class PostureLogRepository: RWRepository {
             case memo
             case imgURL = "img_url"
             case dayID = "day_id"
+            case patientID = "patient_id"
         }
         
         init(origin: PostureLog) {
@@ -38,6 +41,7 @@ final class PostureLogRepository: RWRepository {
             self.memo = origin.memo
             self.imgURL = origin.imgURL
             self.dayID = origin.dayID
+            self.patientID = origin.patientID
         }
         
         func encode(to encoder: Encoder) throws {
@@ -47,6 +51,7 @@ final class PostureLogRepository: RWRepository {
             try container.encodeIfPresent(memo, forKey: .memo)
             try container.encodeIfPresent(imgURL, forKey: .imgURL)
             try container.encodeIfPresent(dayID, forKey: .dayID)
+            try container.encode(patientID, forKey: .patientID)
         }
     }
     
@@ -76,12 +81,8 @@ final class PostureLogRepository: RWRepository {
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [PostureLog] {
-        var builder: PostgrestFilterBuilder!
-        if let filter {
-            builder = buildFilter(filter: filter)
-        } else {
-            builder = client.from(table).select()
-        }
+        guard let filter else { return [] }
+        let builder = buildFilter(filter: filter)
         var response: PostgrestResponse<Void>!
         if let limit {
             response = try await builder.limit(limit).execute()
@@ -92,23 +93,21 @@ final class PostureLogRepository: RWRepository {
     }
     
     func count(filter: Filter?) async throws -> Int {
-        if let filter {
-            return try await buildFilter(filter: filter, head: true).execute().count ?? 0
-        } else {
-            return try await client.from(table).select(head: true, count: .exact).execute().count ?? 0
-        }
+        guard let filter else { return 0 }
+        return try await buildFilter(filter: filter, head: true).execute().count ?? 0
     }
     
     private func buildFilter(filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
         var builder = client.from(table).select(head: head, count: head ? count: nil)
+            .eq(PostureLog.CodingKeys.patientID.rawValue, value: filter.patientID)
         if let dayID = filter.dayID {
-            builder = builder.eq("day_id", value: dayID)
+            builder = builder.eq(PostureLog.CodingKeys.dayID.rawValue, value: dayID)
         }
         if let id = filter.id {
-            builder = builder.eq("id", value: id)
+            builder = builder.eq(PostureLog.CodingKeys.id.rawValue, value: id)
         }
         if let date = filter.minDate {
-            builder = builder.gt("date", value: date.formatted(.iso8601))
+            builder = builder.gt(PostureLog.CodingKeys.createdAt.rawValue, value: date.formatted(.iso8601))
         }
         return builder
     }

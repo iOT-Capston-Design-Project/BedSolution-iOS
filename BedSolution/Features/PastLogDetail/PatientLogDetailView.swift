@@ -10,7 +10,7 @@ import SwiftUI
 struct PatientLogDetailView: View {
     @Environment(\.theme) private var theme
     @State private var postureLogs: [PostureLog] = (0..<20).map { id in
-        PostureLog(id: id, createdAt: Calendar.current.date(byAdding: .hour, value: -id, to: .now)!, memo: "TEST \(id)", dayID: 0)
+        PostureLog(id: id, createdAt: Calendar.current.date(byAdding: .hour, value: -id, to: .now)!, memo: "TEST \(id)", dayID: 0, patientID: 0)
     }
     @State private var selectedPostureLog: PostureLog?
     
