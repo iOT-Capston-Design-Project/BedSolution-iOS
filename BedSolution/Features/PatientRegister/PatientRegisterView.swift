@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PatientRegisterView: View {
     @Environment(\.theme) private var theme
+    @Environment(\.dismiss) private var dismiss
     @State private var step = RegisterStep.name
     @State private var name: String = ""
     @State private var weight: Int = 15
@@ -105,7 +106,7 @@ struct PatientRegisterView: View {
                         cautionOcciput: cautionOcciput, cautionScapula: cautionScapula,
                         cautionElbow: cautionElbow, cautionHip: cautionHip,
                         cautionHeel: cautionHeel, onRegistering: onRegistering,
-                        onStart: {}
+                        onStart: { dismiss() }
                     )
                     .transition(.blurReplace)
                     .onAppear {
