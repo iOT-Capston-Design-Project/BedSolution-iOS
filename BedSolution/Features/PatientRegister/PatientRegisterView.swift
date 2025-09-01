@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PatientRegisterView: View {
     @Environment(\.theme) private var theme
+    @Environment(\.dismiss) private var dismiss
     @State private var step = RegisterStep.name
     @State private var name: String = ""
     @State private var weight: Int = 15
@@ -105,7 +106,7 @@ struct PatientRegisterView: View {
                         cautionOcciput: cautionOcciput, cautionScapula: cautionScapula,
                         cautionElbow: cautionElbow, cautionHip: cautionHip,
                         cautionHeel: cautionHeel, onRegistering: onRegistering,
-                        onStart: {}
+                        onStart: { dismiss() }
                     )
                     .transition(.blurReplace)
                     .onAppear {
@@ -115,7 +116,8 @@ struct PatientRegisterView: View {
             }
         }
         .navigationTitle(Text("환자 등록"))
-        .navigationBarHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .interactiveDismissDisabled(step == .registering)
         .alert("등록 실패", isPresented: $registerFailed) {
             Button(action: { withAnimation { self.step = .caution } }) {
                 Text("확인")

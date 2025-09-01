@@ -8,7 +8,7 @@
 import Foundation
 import Supabase
 
-public struct Patient: Codable, Identifiable {
+public struct Patient: Codable, Hashable, Identifiable {
     public var id: Int = 0
     public var createdAt: Date = Date()
     public var updatedAt: Date?
@@ -21,6 +21,7 @@ public struct Patient: Codable, Identifiable {
     public var cautionElbow: Bool = false
     public var cautionHip: Bool = false
     public var cautionHeel: Bool = false
+    public var deviceID: Int?
     
     
     enum CodingKeys: String, CodingKey {
@@ -36,13 +37,17 @@ public struct Patient: Codable, Identifiable {
         case cautionElbow = "caution_elbow"
         case cautionHip = "caution_hip"
         case cautionHeel = "caution_heel"
+        case deviceID = "device_id"
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
-        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
-        self.updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+        self.createdAt = try Date(try container.decode(String.self, forKey: .createdAt), strategy: .iso8601)
+        let updatedAtStr = try container.decodeIfPresent(String.self, forKey: .updatedAt)
+        if let updatedAtStr {
+            self.updatedAt = try Date(updatedAtStr, strategy: .iso8601)
+        }
         self.uid = try container.decode(UUID.self, forKey: .uid)
         self.name = try container.decode(String.self, forKey: .name)
         self.height = try container.decodeIfPresent(Float.self, forKey: .height)
@@ -52,6 +57,7 @@ public struct Patient: Codable, Identifiable {
         self.cautionElbow = try container.decode(Bool.self, forKey: .cautionElbow)
         self.cautionHip = try container.decode(Bool.self, forKey: .cautionHip)
         self.cautionHeel = try container.decode(Bool.self, forKey: .cautionHeel)
+        self.deviceID = try container.decodeIfPresent(Int.self, forKey: .deviceID)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -68,6 +74,7 @@ public struct Patient: Codable, Identifiable {
         try container.encode(cautionElbow, forKey: .cautionElbow)
         try container.encode(cautionHip, forKey: .cautionHip)
         try container.encode(cautionHeel, forKey: .cautionHeel)
+        try container.encodeIfPresent(deviceID, forKey: .deviceID)
     }
     
     init() {}
@@ -87,6 +94,7 @@ public struct Patient: Codable, Identifiable {
             self.cautionElbow = decoded.cautionElbow
             self.cautionHip = decoded.cautionHip
             self.cautionHeel = decoded.cautionHeel
+            self.deviceID = decoded.deviceID
         } catch {
             return nil
         }
@@ -96,7 +104,8 @@ public struct Patient: Codable, Identifiable {
         id: Int?,
         createdAt: Date, updatedAt: Date? = nil,
         uid: UUID, name: String, height: Float? = nil, weight: Float? = nil,
-        cautionOcciput: Bool, cautionScapula: Bool, cautionElbow: Bool, cautionHip: Bool, cautionHeel: Bool
+        cautionOcciput: Bool, cautionScapula: Bool, cautionElbow: Bool, cautionHip: Bool, cautionHeel: Bool,
+        deviceID: Int? = nil
     ) {
         if let id {
             self.id = id
@@ -112,5 +121,6 @@ public struct Patient: Codable, Identifiable {
         self.cautionElbow = cautionElbow
         self.cautionHip = cautionHip
         self.cautionHeel = cautionHeel
+        self.deviceID = deviceID
     }
 }

@@ -14,6 +14,7 @@ public struct PostureLog: Codable, Identifiable {
     public var memo: String?
     public var imgURL: String?
     public var dayID: Int = 0
+    public var patientID: Int = 0
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -21,6 +22,7 @@ public struct PostureLog: Codable, Identifiable {
         case memo
         case imgURL = "img_url"
         case dayID = "day_id"
+        case patientID = "patient_id"
     }
     
     public init(from decoder: Decoder) throws {
@@ -30,6 +32,7 @@ public struct PostureLog: Codable, Identifiable {
         self.memo = try container.decodeIfPresent(String.self, forKey: .memo)
         self.imgURL = try container.decodeIfPresent(String.self, forKey: .imgURL)
         self.dayID = try container.decode(Int.self, forKey: .dayID)
+        self.patientID = try container.decode(Int.self, forKey: .patientID)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -38,15 +41,17 @@ public struct PostureLog: Codable, Identifiable {
         try container.encode(createdAt, forKey: .createdAt)
         try container.encodeIfPresent(memo, forKey: .memo)
         try container.encodeIfPresent(imgURL, forKey: .imgURL)
-        try container.encodeIfPresent(dayID, forKey: .dayID)
+        try container.encode(dayID, forKey: .dayID)
+        try container.encode(patientID, forKey: .patientID)
     }
     
-    init(id: Int, memo: String? = nil, imgURL: String? = nil, dayID: Int) {
+    init(id: Int, createdAt: Date, memo: String? = nil, imgURL: String? = nil, dayID: Int, patientID: Int) {
         self.id = id
-        self.createdAt = Date.now
+        self.createdAt = createdAt
         self.memo = memo
         self.imgURL = imgURL
         self.dayID = dayID
+        self.patientID = patientID
     }
     
     init?(row: [String: AnyJSON]) {
@@ -56,6 +61,8 @@ public struct PostureLog: Codable, Identifiable {
             self.createdAt = decoded.createdAt
             self.memo = decoded.memo
             self.imgURL = decoded.imgURL
+            self.dayID = decoded.dayID
+            self.patientID = decoded.patientID
         } catch {
             return nil
         }

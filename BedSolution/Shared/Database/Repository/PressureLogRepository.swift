@@ -12,9 +12,8 @@ final class PressureLogRepository: ReadRepository {
     typealias Element = PressureLog
     
     struct Filter {
-        var deviceID: Int
         var id: Int?
-        var dayID: Int?
+        var dayID: Int
         var minDate: Date?
     }
     
@@ -36,7 +35,7 @@ final class PressureLogRepository: ReadRepository {
     
     func list(filter: Filter?, limit: Int?) async throws -> [PressureLog] {
         guard let filter else { return [] }
-        var builder = self.buildFilter(filter).order("created_at")
+        var builder = self.buildFilter(filter).order(PressureLog.CodingKeys.createdAt.rawValue)
         if let limit {
             builder = builder.limit(limit)
         }
@@ -49,17 +48,14 @@ final class PressureLogRepository: ReadRepository {
         return try await self.buildFilter(filter, head: true).execute().count ?? 0
     }
     
-    private func buildFilter(_ filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
-        var builder = client.from(table).select(head: head)
-            .eq("device_id", value: filter.deviceID)
+    private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
+        var builder = client.from(table).select(head: head, count: head ? count: nil)
+            .eq(PressureLog.CodingKeys.dayID.rawValue, value: filter.dayID)
         if let id = filter.id {
-            builder = builder.eq("id", value: id)
-        }
-        if let dayID = filter.dayID {
-            builder = builder.eq("day_id", value: dayID)
+            builder = builder.eq(PressureLog.CodingKeys.id.rawValue, value: id)
         }
         if let minDate = filter.minDate {
-            builder = builder.gt("created_at", value: minDate.formatted(.iso8601))
+            builder = builder.gt(PressureLog.CodingKeys.createdAt.rawValue, value: minDate.formatted(.iso8601))
         }
         return builder
     }

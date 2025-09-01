@@ -37,9 +37,9 @@ final class DeviceRepository: ReadRepository {
     func list(filter: Filter?, limit: Int?) async throws -> [Device] {
         var builder: PostgrestTransformBuilder!
         if let filter {
-            builder = buildFilter(filter).order("created_at")
+            builder = buildFilter(filter).order(Device.CodingKeys.createdAt.rawValue)
         } else {
-            builder = client.from(table).select().order("created_at")
+            builder = client.from(table).select().order(Device.CodingKeys.createdAt.rawValue)
         }
         if let limit {
             builder = builder.limit(limit)
@@ -52,16 +52,16 @@ final class DeviceRepository: ReadRepository {
     func count(filter: Filter?) async throws -> Int {
         var builder: PostgrestTransformBuilder!
         if let filter {
-            builder = buildFilter(filter, head: true).order("created_at")
+            builder = buildFilter(filter, head: true).order(Device.CodingKeys.createdAt.rawValue)
         } else {
-            builder = client.from(table).select(head: true).order("created_at")
+            builder = client.from(table).select(head: true, count: .exact).order(Device.CodingKeys.createdAt.rawValue)
         }
         let response = try await builder.execute()
         logger.info("Get response: \(response.response.statusCode)")
         return response.count ?? 0
     }
     
-    private func buildFilter(_ filter: Filter, head: Bool = false) -> PostgrestFilterBuilder {
-        return client.from(table).select(head: head).eq("id", value: filter.deviceID)
+    private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {
+        return client.from(table).select(head: head, count: head ? count: nil).eq(Device.CodingKeys.id.rawValue, value: filter.deviceID)
     }
 }

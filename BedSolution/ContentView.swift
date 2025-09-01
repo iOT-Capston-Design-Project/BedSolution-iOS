@@ -8,15 +8,28 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var authController = AuthController.shared
+    @State private var selectedPatient: Patient?
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationSplitView {
+            PatientList(selection: $selectedPatient)
+        } detail: {
+            if let selectedPatient {
+                PatientSummaryView(patient: selectedPatient)
+            } else {
+                NoPatientSelectionView()
+            }
         }
-        .padding()
+        .overlay {
+            if !authController.isSignIn {
+                SignUpView()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.default, value: authController.isSignIn)
     }
+    
 }
 
 #Preview {

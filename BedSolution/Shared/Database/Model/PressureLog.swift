@@ -8,7 +8,16 @@
 import Foundation
 import Supabase
 
-nonisolated public struct PressureLog: Codable, Identifiable {
+public enum PostureType: Int, Codable {
+    case UKNOWN = 0
+    case SITTING = 1
+    case LEFT_SIDE = 2
+    case RIGHT_SIDE = 3
+    case SUPINE = 4
+    case PRONE = 5
+}
+
+nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
     public var id: Int = 0
     public var createdAt: Date = Date()
     public var occiput: Int = 0
@@ -16,8 +25,8 @@ nonisolated public struct PressureLog: Codable, Identifiable {
     public var elbow: Int = 0
     public var heel: Int = 0
     public var hip: Int = 0
-    public var deviceID: Int = 0
-    public var dayID: Int?
+    public var dayID: Int = 0
+    public var postureType: PostureType = .UKNOWN
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -27,8 +36,8 @@ nonisolated public struct PressureLog: Codable, Identifiable {
         case elbow
         case heel
         case hip
-        case deviceID = "device_id"
         case dayID = "day_id"
+        case postureType = "posture_type"
     }
     
     public init(from decoder: Decoder) throws {
@@ -40,6 +49,8 @@ nonisolated public struct PressureLog: Codable, Identifiable {
         self.elbow = try container.decode(Int.self, forKey: .elbow)
         self.heel = try container.decode(Int.self, forKey: .heel)
         self.hip = try container.decode(Int.self, forKey: .hip)
+        self.dayID = try container.decode(Int.self, forKey: .dayID)
+        self.postureType = try container.decodeIfPresent(PostureType.self, forKey: .postureType) ?? .UKNOWN
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -51,8 +62,8 @@ nonisolated public struct PressureLog: Codable, Identifiable {
         try container.encode(elbow, forKey: .elbow)
         try container.encode(heel, forKey: .heel)
         try container.encode(hip, forKey: .hip)
-        try container.encode(deviceID, forKey: .deviceID)
-        try container.encodeIfPresent(dayID, forKey: .dayID)
+        try container.encode(dayID, forKey: .dayID)
+        try container.encode(postureType, forKey: .postureType)
     }
     
     init() {}
@@ -67,10 +78,22 @@ nonisolated public struct PressureLog: Codable, Identifiable {
             self.elbow = decoded.elbow
             self.heel = decoded.heel
             self.hip = decoded.hip
-            self.deviceID = decoded.deviceID
             self.dayID = decoded.dayID
+            self.postureType = decoded.postureType
         } catch {
             return nil
         }
+    }
+    
+    init(id: Int, createdAt: Date, occiput: Int, scapula: Int, elbow: Int, heel: Int, hip: Int, dayID: Int, postureType: PostureType = .UKNOWN) {
+        self.id = id
+        self.createdAt = createdAt
+        self.occiput = occiput
+        self.scapula = scapula
+        self.elbow = elbow
+        self.heel = heel
+        self.hip = hip
+        self.dayID = dayID
+        self.postureType = postureType
     }
 }

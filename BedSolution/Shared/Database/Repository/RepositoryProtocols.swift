@@ -21,5 +21,6 @@ protocol ReadRepository {
 }
 
 protocol RWRepository: ReadRepository {
+    func insert(_ element: Element) async throws -> Data
     func upsert(_ element: Element) async throws -> Data
 }

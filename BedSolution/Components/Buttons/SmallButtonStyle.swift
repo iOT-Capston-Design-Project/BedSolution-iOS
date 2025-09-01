@@ -50,7 +50,7 @@ struct SmallButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColorSet(foregroundColorSet())
-            .frame(minHeight: 35)
+            .frame(minHeight: 30)
             .padding(EdgeInsets(top: 5, leading: 15, bottom: 5, trailing: 15))
             .backgroundColorSet(
                 backgroundColorSet(config: configuration),
