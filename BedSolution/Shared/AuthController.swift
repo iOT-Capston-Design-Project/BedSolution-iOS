@@ -79,7 +79,7 @@ class AuthController {
             return false
         }
         do {
-            try await patientRepository.upsert(
+            try await patientRepository.insert(
                 Patient(
                     id: nil, createdAt: Date.now, updatedAt: nil, uid: uid,
                     name: name, height: nil, weight: Float(weight),

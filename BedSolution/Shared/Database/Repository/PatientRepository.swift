@@ -94,6 +94,20 @@ final class PatientRepository: RWRepository {
     }
     
     @discardableResult
+    func insert(_ element: Patient) async throws -> Data {
+        var mutableElement = element
+        if mutableElement.id == 0 {
+            mutableElement.id = Int(IDGenerator.generateInt64(from: mutableElement.uid))
+        }
+        let dto = PatientDTO(origin: mutableElement)
+        let response = try await client
+            .from(table)
+            .insert(dto, returning: .representation)
+            .execute()
+        return response.data
+    }
+    
+    @discardableResult
     func upsert(_ element: Patient) async throws -> Data {
         let dto = PatientDTO(origin: element)
         let response = try await client

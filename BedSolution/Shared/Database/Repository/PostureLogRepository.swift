@@ -66,10 +66,23 @@ final class PostureLogRepository: RWRepository {
     }
     
     @discardableResult
+    func insert(_ element: PostureLog) async throws -> Data {
+        var mutableElement = element
+        if mutableElement.id == 0 {
+            mutableElement.id = Int(IDGenerator.generateInt64())
+        }
+        let dto = PostureLogDTO(origin: mutableElement)
+        let response = try await client.from(table)
+            .insert(dto, returning: .representation)
+            .execute()
+        return response.data
+    }
+    
+    @discardableResult
     func upsert(_ element: PostureLog) async throws -> Data {
         let dto = PostureLogDTO(origin: element)
         let response = try await client.from(table)
-            .upsert(dto, onConflict: "id", returning: .representation)
+            .upsert(dto, onConflict: PostureLog.CodingKeys.id.rawValue, returning: .representation)
             .execute()
         return  response.data
     }
