@@ -20,7 +20,16 @@ public struct Device: Codable, Identifiable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
-        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
+        let dateString = try container.decode(String.self, forKey: .createdAt)
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [
+            .withInternetDateTime,
+            .withFractionalSeconds
+        ]
+        guard let date = formatter.date(from: dateString) else {
+            throw DecodingError.typeMismatch(Date.self, DecodingError.Context(codingPath: [CodingKeys.createdAt], debugDescription: "Failed to decode Date"))
+        }
+        self.createdAt = date
     }
     
     public func encode(to encoder: Encoder) throws {

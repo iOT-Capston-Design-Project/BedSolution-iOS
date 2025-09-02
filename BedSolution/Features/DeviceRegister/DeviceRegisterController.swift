@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Logging
 
 enum DeviceRegisterStep {
     case enterDeviceID
@@ -20,6 +21,7 @@ class DeviceRegisterController {
     var deviceID: Int = 0
     private var deviceRepo: DeviceRepository
     private var patientRepo: PatientRepository
+    private let logger = Logger(label: "DeviceRegisterController")
     
     init() {
         self.deviceRepo = DeviceRepository()
@@ -46,9 +48,11 @@ class DeviceRegisterController {
             if let device = try await deviceRepo.get(filter: .init(deviceID: deviceID)) {
                 return device.id
             } else {
+                logger.error("No device with ID: \(deviceID)")
                 return nil
             }
         } catch {
+            logger.error("Failed to get device: \(error)")
             return nil
         }
     }
@@ -60,6 +64,7 @@ class DeviceRegisterController {
             try await patientRepo.upsert(mutablePatient)
             return true
         } catch {
+            logger.error("Failed to link device with patient: \(error)")
             return false
         }
     }
