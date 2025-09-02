@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct PatientSummaryView: View {
     private enum TabItems {
@@ -27,11 +28,16 @@ struct PatientSummaryView: View {
             value = nextValue() ?? value
         }
     }
+    enum SheetType: Identifiable {
+        case addPosture, addDevice
+        
+        var id: Int { hashValue }
+    }
     @Environment(\.theme) private var theme
     @State private var tabSize: CGFloat = .zero
     @State private var selectedTab = TabItems.summary
     @State private var tabX: CGFloat = .zero
-    @State private var addPosture: Bool = false
+    @State private var sheetType: SheetType? = nil
     @Namespace private var tabbarSpace
     private let tabHeight: CGFloat = 45
     var patient: Patient
@@ -66,23 +72,28 @@ struct PatientSummaryView: View {
                 PastLogs()
                     .transition(.blurReplace)
             case .patient:
-                PatientInfo()
+                PatientInfo(selectedSheet: $sheetType)
                     .transition(.blurReplace)
             }
         }
         .backgroundColorSet(theme.colorTheme.surface)
         .toolbar {
             ToolbarItem {
-                Button(action: { addPosture.toggle() }) {
+                Button(action: { sheetType = .addPosture }) {
                     Label("자세 기록", systemImage: "figure")
                 }
             }
         }
         .navigationTitle(Text("환자 이름"))
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $addPosture) {
-            PostureLogEditor()
-                .presentationDetents([.medium])
+        .sheet(item: $sheetType) { type in
+            switch type {
+            case .addDevice:
+                DeviceRegisterView(patient: patient)
+            case .addPosture:
+                PostureLogEditor()
+                    .presentationDetents([.medium])
+            }
         }
     }
     

@@ -15,17 +15,39 @@ struct PatientInfo: View {
     @Environment(\.theme) private var theme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var patient = Patient(id: 0, createdAt: .now, uid: UUID(), name: "홍길동", cautionOcciput: true, cautionScapula: true, cautionElbow: false, cautionHip: false, cautionHeel: true)
+    @State private var deviceEdit: Bool = false
+    @Binding var selectedSheet: PatientSummaryView.SheetType?
     
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack {
-                field(label: "환자명") {
-                    TextField("환자명", text: $patient.name)
-                        .labelsHidden()
-                        .textStyle(theme.textTheme.bodyLarge)
-                        .multilineTextAlignment(.trailing)
+                fieldSection(axis: .vertical) {
+                    field(label: "환자명", style: .top) {
+                        TextField("환자명", text: $patient.name)
+                            .labelsHidden()
+                            .textStyle(theme.textTheme.bodyLarge)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    field(label: "연결된 장치", style: .bottom) {
+                        Button(action: {
+                            if patient.deviceID != nil {
+                                deviceEdit.toggle()
+                            } else {
+                                selectedSheet = .addDevice
+                            }
+                        }) {
+                            if let id = patient.deviceID {
+                                Text(String(id))
+                                    .textStyle(theme.textTheme.bodyLarge)
+                                    .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
+                            } else {
+                                Text("장치 등록하기")
+                                    .textStyle(theme.textTheme.emphasizedBodyLarge)
+                                    .foregroundColorSet(theme.colorTheme.primary)
+                            }
+                        }
+                    }
                 }
-                .scrollDismissAnimation()
                 fieldSection(axis: horizontalSizeClass == .compact ? .vertical : .horizontal) {
                     field(
                         label: "주요 알림 부위",
@@ -42,7 +64,6 @@ struct PatientInfo: View {
                         .frame(maxWidth: .infinity)
                         .padding(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
                     }
-                    .scrollDismissAnimation()
                     fieldSection {
                         field(
                             label: "뒤통수",
@@ -53,25 +74,21 @@ struct PatientInfo: View {
                                 .labelsHidden()
                                 .tintColorSet(theme.colorTheme.error)
                         }
-                        .scrollDismissAnimation()
                         field(label: "견갑골", style: .middle, expand: horizontalSizeClass != .compact) {
                             Toggle("견갑골", isOn: $patient.cautionScapula)
                                 .labelsHidden()
                                 .tintColorSet(theme.colorTheme.error)
                         }
-                        .scrollDismissAnimation()
                         field(label: "팔꿈치", style: .middle, expand: horizontalSizeClass != .compact) {
                             Toggle("팔꿈치", isOn: $patient.cautionElbow)
                                 .labelsHidden()
                                 .tintColorSet(theme.colorTheme.error)
                         }
-                        .scrollDismissAnimation()
                         field(label: "엉덩뼈", style: .middle, expand: horizontalSizeClass != .compact) {
                             Toggle("엉덩뼈", isOn: $patient.cautionHip)
                                 .labelsHidden()
                                 .tintColorSet(theme.colorTheme.error)
                         }
-                        .scrollDismissAnimation()
                         field(
                             label: "발꿈치",
                             style: .custom(0, 0, horizontalSizeClass == .compact ? 15 : 0, 15),
@@ -81,7 +98,6 @@ struct PatientInfo: View {
                                 .labelsHidden()
                                 .tintColorSet(theme.colorTheme.error)
                         }
-                        .scrollDismissAnimation()
                     }
                 }
                 fieldSection {
@@ -98,7 +114,6 @@ struct PatientInfo: View {
                             .labelsHidden()
                         }
                     }
-                    .scrollDismissAnimation()
                     field(label: "몸무게", style: .bottom) {
                         HStack(spacing: 8) {
                             Text(String(format: "%.1f kg", patient.weight ?? 0))
@@ -112,12 +127,18 @@ struct PatientInfo: View {
                             .labelsHidden()
                         }
                     }
-                    .scrollDismissAnimation()
                 }
             }
         }
         .contentMargins(.horizontal, 12, for: .scrollContent)
         .scrollIndicators(.never)
+        .alert("장치 변경", isPresented: $deviceEdit) {
+            Button(action: { selectedSheet = .addDevice }) {
+                Text("변경")
+            }
+        } message: {
+            Text("장치 변경시 기존 기록이 삭제됩니다. 계속하시겠습니까?")
+        }
     }
     
     @ViewBuilder
@@ -275,6 +296,7 @@ private struct RoundedCorner: InsettableShape {
 }
 
 #Preview {
-    PatientInfo()
+    @Previewable @State var type: PatientSummaryView.SheetType?
+    PatientInfo(selectedSheet: $type)
         .background(Color.black)
 }
