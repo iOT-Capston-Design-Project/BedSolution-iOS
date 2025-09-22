@@ -49,6 +49,17 @@ struct PatientList: View {
                     Label("환자 추가", systemImage: "plus")
                 }
             }
+            ToolbarItem {
+                Menu {
+                    Button(role: .destructive, action: {
+                        Task { await auth.signout() }
+                    }) {
+                        Label("로그아웃", systemImage: "lock.open")
+                    }
+                } label: {
+                    Label("설정", systemImage: "gearshape")
+                }
+            }
         }
         .navigationTitle(Text("환자 목록"))
         .sheet(isPresented: $addPatient) {
@@ -74,4 +85,5 @@ struct PatientList: View {
         PatientList(selection: $selected)
             .environment(AuthService())
     }
+    .environment(PatientsController())
 }

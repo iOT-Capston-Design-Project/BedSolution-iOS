@@ -40,6 +40,17 @@ final class AuthService {
         }
     }
     
+    @discardableResult
+    func signout() async -> Bool {
+        do {
+            _ = try await client.auth.signOut()
+            return true
+        } catch {
+            logger.error("Failed to sign out: \(error)")
+            return false
+        }
+    }
+    
     func _listenSession() {
         Task {
             for await (event, session) in client.auth.authStateChanges {
