@@ -12,54 +12,90 @@ struct PatientInfo: View {
         case single, top, middle, bottom
         case custom(CGFloat, CGFloat, CGFloat, CGFloat) // TL TR BL BR
     }
+    private enum TargetParts {
+        case none, occiput, scapula, elbow, hip, heel
+    }
     @Environment(\.theme) private var theme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var patient = Patient(id: 0, createdAt: .now, uid: UUID(), name: "홍길동", cautionOcciput: true, cautionScapula: true, cautionElbow: false, cautionHip: false, cautionHeel: true)
-    @State private var deviceEdit: Bool = false
-    @Binding var selectedSheet: PatientSummaryView.SheetType?
+    @Bindable var controller: PatientInfoController
+    @State private var deviceEditAlert: Bool = false
+    @State private var showDeviceEditor: Bool = false
+    @State private var targetedPart: TargetParts = .none
     
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack {
                 fieldSection(axis: .vertical) {
                     field(label: "환자명", style: .top) {
-                        TextField("환자명", text: $patient.name)
+                        TextField("환자명", text: $controller.name)
                             .labelsHidden()
                             .textStyle(theme.textTheme.bodyLarge)
                             .multilineTextAlignment(.trailing)
                     }
                     field(label: "연결된 장치", style: .bottom) {
-                        Button(action: {
-                            if patient.deviceID != nil {
-                                deviceEdit.toggle()
-                            } else {
-                                selectedSheet = .addDevice
+                        VStack(alignment: .trailing) {
+                            HStack {
+                                TextField(
+                                    "장치 ID",
+                                    text: Binding<String>(
+                                        get: { String(controller.deviceID ?? 0) },
+                                        set: { value in
+                                            if let iVal = Int(value), iVal != 0 {
+                                                controller.deviceID = iVal
+                                            } else {
+                                                controller.deviceID = nil
+                                            }
+                                        }
+                                    )
+                                )
+                                .keyboardType(.numberPad)
+                                .multilineTextAlignment(.trailing)
+                                .textStyle(theme.textTheme.bodyLarge)
+                                .onSubmit {
+                                    controller.checkDeviceID()
+                                }
+                                if controller.deviceIDState == .checking {
+                                    ProgressView()
+                                        .progressViewStyle(.circular)
+                                }
                             }
-                        }) {
-                            if let id = patient.deviceID {
-                                Text(String(id))
-                                    .textStyle(theme.textTheme.bodyLarge)
-                                    .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
-                            } else {
-                                Text("장치 등록하기")
-                                    .textStyle(theme.textTheme.emphasizedBodyLarge)
-                                    .foregroundColorSet(theme.colorTheme.primary)
+                            if controller.deviceIDState == .invalid {
+                                Text("올바르지 않은 ID입니다.")
+                                    .textStyle(theme.textTheme.emphasizedLabelLarge)
+                                    .foregroundColorSet(theme.colorTheme.error)
                             }
+                        }
+                        .animation(.default, value: controller.deviceIDState)
+                    }
+                }
+                fieldSection {
+                    field(label: "몸무게", style: .single) {
+                        HStack(spacing: 8) {
+                            Text(String(format: "%.1f kg", controller.weight ?? 0))
+                                .textStyle(theme.textTheme.bodyLarge)
+                                .foregroundColorSet(theme.colorTheme.onSurface)
+                                .contentTransition(.numericText(value: Double(controller.weight ?? 0)))
+                                .animation(.default, value: controller.weight)
+                            Stepper(
+                                "몸무게",
+                                value: Binding<Float>(get: { controller.weight ?? 0 }, set: { controller.weight = $0 }),
+                                in: 14...120
+                            )
+                            .labelsHidden()
                         }
                     }
                 }
-                fieldSection(axis: horizontalSizeClass == .compact ? .vertical : .horizontal) {
+                fieldSection(axis: .vertical) {
                     field(
                         label: "주요 알림 부위",
                         axis: .vertical,
-                        style: .custom(15, horizontalSizeClass == .compact ? 15 : 0, horizontalSizeClass == .compact ? 0 : 15, 0)
+                        style: .top
                     ) {
                         HumanConfig(
-                            cautionOcciput: $patient.cautionOcciput,
-                            cautionScapula: $patient.cautionScapula,
-                            cautionElbow: $patient.cautionElbow,
-                            cautionHip: $patient.cautionHip,
-                            cautionHeel: $patient.cautionHeel
+                            occiputTime: $controller.occiputTime,
+                            scapulaTime: $controller.scapulaTime,
+                            elbowTime: $controller.elbowTime,
+                            hipTime: $controller.hipTime,
+                            heelTime: $controller.heelTime
                         )
                         .frame(maxWidth: .infinity)
                         .padding(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
@@ -67,79 +103,79 @@ struct PatientInfo: View {
                     fieldSection {
                         field(
                             label: "뒤통수",
-                            style: .custom(0, horizontalSizeClass == .compact ? 0: 15, 0, 0),
-                            expand: horizontalSizeClass != .compact
+                            style: .middle
                         ) {
-                            Toggle("뒤통수", isOn: $patient.cautionOcciput)
-                                .labelsHidden()
-                                .tintColorSet(theme.colorTheme.error)
+                            timeButton(target: .occiput, time: controller.occiputTime)
                         }
-                        field(label: "견갑골", style: .middle, expand: horizontalSizeClass != .compact) {
-                            Toggle("견갑골", isOn: $patient.cautionScapula)
-                                .labelsHidden()
-                                .tintColorSet(theme.colorTheme.error)
+                        if targetedPart == .occiput {
+                            field(label: "최대 압력 시간", axis: .vertical, style: .middle) {
+                                PressureTimePicker(time: $controller.occiputTime)
+                            }
                         }
-                        field(label: "팔꿈치", style: .middle, expand: horizontalSizeClass != .compact) {
-                            Toggle("팔꿈치", isOn: $patient.cautionElbow)
-                                .labelsHidden()
-                                .tintColorSet(theme.colorTheme.error)
+                        field(label: "견갑골", style: .middle) {
+                            timeButton(target: .scapula, time: controller.scapulaTime)
                         }
-                        field(label: "엉덩뼈", style: .middle, expand: horizontalSizeClass != .compact) {
-                            Toggle("엉덩뼈", isOn: $patient.cautionHip)
-                                .labelsHidden()
-                                .tintColorSet(theme.colorTheme.error)
+                        if targetedPart == .scapula {
+                            field(label: "최대 압력 시간", axis: .vertical, style: .middle) {
+                                PressureTimePicker(time: $controller.scapulaTime)
+                            }
+                        }
+                        field(label: "팔꿈치", style: .middle) {
+                            timeButton(target: .elbow, time: controller.elbowTime)
+                        }
+                        if targetedPart == .elbow {
+                            field(label: "최대 압력 시간", axis: .vertical, style: .middle) {
+                                PressureTimePicker(time: $controller.elbowTime)
+                            }
+                        }
+                        field(label: "엉덩뼈", style: .middle) {
+                            timeButton(target: .hip, time: controller.hipTime)
+                        }
+                        if targetedPart == .hip {
+                            field(label: "최대 압력 시간", axis: .vertical, style: .middle) {
+                                PressureTimePicker(time: $controller.hipTime)
+                            }
                         }
                         field(
                             label: "발꿈치",
-                            style: .custom(0, 0, horizontalSizeClass == .compact ? 15 : 0, 15),
-                            expand: horizontalSizeClass != .compact
+                            style: targetedPart == .heel ? .middle: .bottom
                         ) {
-                            Toggle("발꿈치", isOn: $patient.cautionHeel)
-                                .labelsHidden()
-                                .tintColorSet(theme.colorTheme.error)
+                            timeButton(target: .heel, time: controller.heelTime)
+                        }
+                        if targetedPart == .heel {
+                            field(label: "최대 압력 시간", axis: .vertical, style: .bottom) {
+                                PressureTimePicker(time: $controller.heelTime)
+                            }
                         }
                     }
-                }
-                fieldSection {
-                    field(label: "키", style: .top) {
-                        HStack(spacing: 8) {
-                            Text(String(format: "%.1f cm", patient.height ?? 0))
-                                .textStyle(theme.textTheme.bodyLarge)
-                                .foregroundColorSet(theme.colorTheme.onSurface)
-                            Stepper(
-                                "키",
-                                value: Binding<Float>(get: { patient.height ?? 0 }, set: { patient.height = $0 }),
-                                in: 0...250
-                            )
-                            .labelsHidden()
-                        }
-                    }
-                    field(label: "몸무게", style: .bottom) {
-                        HStack(spacing: 8) {
-                            Text(String(format: "%.1f kg", patient.weight ?? 0))
-                                .textStyle(theme.textTheme.bodyLarge)
-                                .foregroundColorSet(theme.colorTheme.onSurface)
-                            Stepper(
-                                "몸무게",
-                                value: Binding<Float>(get: { patient.weight ?? 0 }, set: { patient.weight = $0 }),
-                                in: 14...120
-                            )
-                            .labelsHidden()
-                        }
-                    }
+                    .animation(.default, value: targetedPart)
                 }
             }
         }
         .contentMargins(.horizontal, 12, for: .scrollContent)
+        .contentMargins(.top, 5, for: .scrollContent)
         .scrollIndicators(.never)
-        .alert("장치 변경", isPresented: $deviceEdit) {
-            Button(action: { selectedSheet = .addDevice }) {
-                Text("변경")
+        .safeAreaInset(edge: .bottom) {
+            if controller.isUpdated {
+                Button(action: { Task { await self.controller.update() } }) {
+                    HStack(spacing: 5) {
+                        if controller.isUpdating {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                        }
+                        Text("변경사항 저장하기")
+                            .textStyle(theme.textTheme.emphasizedLabelLarge)
+                    }
+                }
+                .buttonStyle(type: .small, option: .fiilled, primary: theme.colorTheme.primary, onPrimary: theme.colorTheme.onPrimary)
+                .disabled(controller.isUpdating || controller.deviceIDState != .valid)
+                .shadow(radius: 10)
+                .transition(.scale)
             }
-        } message: {
-            Text("장치 변경시 기존 기록이 삭제됩니다. 계속하시겠습니까?")
         }
+        .animation(.default, value: controller.isUpdated)
     }
+
     
     @ViewBuilder
     private func field<V: View>(
@@ -254,6 +290,22 @@ struct PatientInfo: View {
             }
         }
     }
+    
+    private func timeButton(target: TargetParts, time: Int?) -> some View {
+        Button(action: {
+            targetedPart = targetedPart == target ? .none: target
+        }) {
+            Group {
+                if let time {
+                    Text(TimeFormatter.formattedDuration(from: time))
+                } else {
+                    Text("설정하기")
+                }
+            }
+            .textStyle(theme.textTheme.labelLarge)
+            .foregroundColorSet(controller.occiputTime != nil ? theme.colorTheme.onSurfaceVarient: theme.colorTheme.primary)
+        }
+    }
 }
 
 private struct RoundedCorner: InsettableShape {
@@ -296,7 +348,6 @@ private struct RoundedCorner: InsettableShape {
 }
 
 #Preview {
-    @Previewable @State var type: PatientSummaryView.SheetType?
-    PatientInfo(selectedSheet: $type)
+    PatientInfo(controller: PatientInfoController())
         .background(Color.black)
 }

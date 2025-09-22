@@ -18,19 +18,14 @@ final class PressureLogRepository: ReadRepository {
     }
     
     let table: String = "pressure_logs"
-    private let client: SupabaseClient
+    private let client = SupabaseService.shared.client
     
-    init() {
-        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
-            fatalError("No API key or base URL set")
-        }
-        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
-    }
+    init() {}
     
     func get(filter: Filter?) async throws -> PressureLog? {
         guard let filter else { return nil }
         let response = try await buildFilter(filter).limit(1).execute()
-        return try JSONDecoder().decode([PressureLog].self, from: response.data).first
+        return try SupabaseService.shared.jsonDecoder.decode([PressureLog].self, from: response.data).first
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [PressureLog] {
@@ -40,7 +35,7 @@ final class PressureLogRepository: ReadRepository {
             builder = builder.limit(limit)
         }
         let response = try await builder.execute()
-        return try JSONDecoder().decode([PressureLog].self, from: response.data)
+        return try SupabaseService.shared.jsonDecoder.decode([PressureLog].self, from: response.data)
     }
     
     func count(filter: Filter?) async throws -> Int {

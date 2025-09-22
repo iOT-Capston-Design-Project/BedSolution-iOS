@@ -25,11 +25,11 @@ final class PatientRepository: RWRepository {
         let name: String
         let height: Float?
         let weight: Float?
-        let cautionOcciput: Bool
-        let cautionScapula: Bool
-        let cautionElbow: Bool
-        let cautionHip: Bool
-        let cautionHeel: Bool
+        let occiputTime: Int?
+        let scapulaTime: Int?
+        let elbowTime: Int?
+        let hipTime: Int?
+        let heelTime: Int?
         let deviceID: Int?
         
         enum CodingKeys: String, CodingKey {
@@ -40,11 +40,11 @@ final class PatientRepository: RWRepository {
             case name
             case height
             case weight
-            case cautionOcciput = "caution_occiput"
-            case cautionScapula = "caution_scapula"
-            case cautionElbow = "caution_elbow"
-            case cautionHip = "caution_hip"
-            case cautionHeel = "caution_heel"
+            case occiputTime = "occiput_time"
+            case scapulaTime = "scapula_time"
+            case elbowTime = "elbow_time"
+            case hipTime = "hip_time"
+            case heelTime = "heel_time"
             case deviceID = "device_id"
         }
         
@@ -57,11 +57,11 @@ final class PatientRepository: RWRepository {
             try container.encode(name, forKey: .name)
             try container.encodeIfPresent(height, forKey: .height)
             try container.encodeIfPresent(weight, forKey: .weight)
-            try container.encode(cautionOcciput, forKey: .cautionOcciput)
-            try container.encode(cautionScapula, forKey: .cautionScapula)
-            try container.encode(cautionElbow, forKey: .cautionElbow)
-            try container.encode(cautionHip, forKey: .cautionHip)
-            try container.encode(cautionHeel, forKey: .cautionHeel)
+            try container.encodeIfPresent(occiputTime, forKey: .occiputTime)
+            try container.encodeIfPresent(scapulaTime, forKey: .scapulaTime)
+            try container.encodeIfPresent(elbowTime, forKey: .elbowTime)
+            try container.encodeIfPresent(hipTime, forKey: .hipTime)
+            try container.encodeIfPresent(heelTime, forKey: .heelTime)
             try container.encodeIfPresent(deviceID, forKey: .deviceID)
         }
         
@@ -73,25 +73,20 @@ final class PatientRepository: RWRepository {
             self.name = origin.name
             self.height = origin.height
             self.weight = origin.weight
-            self.cautionOcciput = origin.cautionOcciput
-            self.cautionScapula = origin.cautionScapula
-            self.cautionElbow = origin.cautionElbow
-            self.cautionHip = origin.cautionHip
-            self.cautionHeel = origin.cautionHeel
+            self.occiputTime = origin.occiputTime
+            self.scapulaTime = origin.scapulaTime
+            self.elbowTime = origin.elbowTime
+            self.hipTime = origin.hipTime
+            self.heelTime = origin.heelTime
             self.deviceID = origin.deviceID
         }
     }
     
     let table: String = "patients"
-    private let client: SupabaseClient
+    private let client = SupabaseService.shared.client
     private let logger = Logger(label: "PatientRepository")
     
-    init() {
-        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
-            fatalError("No API key or base URL set")
-        }
-        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
-    }
+    init() {}
     
     @discardableResult
     func insert(_ element: Patient) async throws -> Data {
@@ -120,7 +115,7 @@ final class PatientRepository: RWRepository {
     func get(filter: Filter?) async throws -> Patient? {
         guard let filter else { return nil }
         let response = try await buildFilter(filter).limit(1).execute()
-        return try JSONDecoder().decode([Patient].self, from: response.data).first
+        return try SupabaseService.shared.jsonDecoder.decode([Patient].self, from: response.data).first
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [Patient] {
@@ -131,7 +126,7 @@ final class PatientRepository: RWRepository {
         }
         let response = try await builder.execute()
         do {
-            return try JSONDecoder().decode([Patient].self, from: response.data)
+            return try SupabaseService.shared.jsonDecoder.decode([Patient].self, from: response.data)
         } catch {
             logger.critical("Fail to decode Patient from JSON", metadata: ["error": .string(error.localizedDescription)])
             throw error
@@ -146,6 +141,16 @@ final class PatientRepository: RWRepository {
         }
         logger.error("No count field in the response", metadata: ["response": .stringConvertible(response.response)])
         return 0
+    }
+    
+    @discardableResult
+    func delete(id: Int) async throws -> Data {
+        let response = try await client
+            .from(table)
+            .delete()
+            .eq(Patient.CodingKeys.id.rawValue, value: id)
+            .execute()
+        return response.data
     }
     
     private func buildFilter(_ filter: Filter, head: Bool = false, count: CountOption = .exact) -> PostgrestFilterBuilder {

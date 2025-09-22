@@ -8,7 +8,7 @@
 import Foundation
 
 protocol ReadRepository {
-    associatedtype Element = Identifiable
+    associatedtype Element: Identifiable
     associatedtype Filter
     
     var table: String { get }
@@ -23,4 +23,8 @@ protocol ReadRepository {
 protocol RWRepository: ReadRepository {
     func insert(_ element: Element) async throws -> Data
     func upsert(_ element: Element) async throws -> Data
+}
+
+protocol StreamRepository: ReadRepository {
+    func stream(filter: Filter?) -> AsyncStream<Element>
 }

@@ -14,11 +14,11 @@ struct PatientRegisteringView: View {
     @State private var visibleInfo = [PatientData]()
     var name: String = ""
     var weight: Int = 15
-    var cautionOcciput: Bool = false
-    var cautionScapula: Bool = false
-    var cautionElbow: Bool = false
-    var cautionHip: Bool = false
-    var cautionHeel: Bool = false
+    var occiputTime: Int?
+    var scapulaTime: Int?
+    var elbowTime: Int?
+    var hipTime: Int?
+    var heelTime: Int?
     var onRegistering: Bool
     var onStart: () -> Void
     
@@ -83,7 +83,7 @@ struct PatientRegisteringView: View {
                         .textStyle(theme.textTheme.emphasizedTitleLarge)
                         .transition(.blurReplace)
                     if !onRegistering {
-                        Text("환자 등록이 완료되었습니다.\n바로 시작해 보세요")
+                        Text("환자 등록이 완료되었습니다.")
                             .multilineTextAlignment(.center)
                             .transition(.blurReplace)
                     }
@@ -92,7 +92,7 @@ struct PatientRegisteringView: View {
             }
             Spacer()
             Button(action: onStart) {
-                Text("시작하기")
+                Text("완료")
                     .textStyle(theme.textTheme.emphasizedBodyLarge)
                     .frame(width: 250)
             }
@@ -130,19 +130,19 @@ struct PatientRegisteringView: View {
         if weight > 0 {
             result.append(PatientData(id: 1, title: "\(weight) kg", icon: "scalemass.fill"))
         }
-        if cautionOcciput {
+        if occiputTime != nil {
             result.append(PatientData(id: 2, title: "뒤통수", icon: "exclamationmark.triangle.fill"))
         }
-        if cautionScapula {
+        if scapulaTime != nil {
             result.append(PatientData(id: 3, title: "견갑골", icon: "exclamationmark.triangle.fill"))
         }
-        if cautionHip {
+        if hipTime != nil {
             result.append(PatientData(id: 4, title: "엉덩이", icon: "exclamationmark.triangle.fill"))
         }
-        if cautionHeel {
+        if heelTime != nil {
             result.append(PatientData(id: 5, title: "발꿈치", icon: "exclamationmark.triangle.fill"))
         }
-        if cautionElbow {
+        if elbowTime != nil {
             result.append(PatientData(id: 6, title: "팔꿈치", icon: "exclamationmark.triangle.fill"))
         }
         self.patientInfo = result
@@ -155,9 +155,9 @@ struct PatientRegisteringView: View {
     PatientRegisteringView(
         name: "Lee Jaeho",
         weight: 74,
-        cautionScapula: true,
-        cautionHip: true,
-        cautionHeel: true,
+        occiputTime: 40,
+        hipTime: 30,
+        heelTime: 10,
         onRegistering: onRegistering,
         onStart: {}
     )

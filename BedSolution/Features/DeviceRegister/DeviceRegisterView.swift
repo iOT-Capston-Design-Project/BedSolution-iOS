@@ -111,5 +111,5 @@ struct DeviceRegisterView: View {
 }
 
 #Preview {
-    DeviceRegisterView(patient: Patient(id: 123, createdAt: .now, uid: UUID(), name: "", cautionOcciput: false, cautionScapula: false, cautionElbow: false, cautionHip: false, cautionHeel: false))
+    DeviceRegisterView(patient: Patient(id: 123, createdAt: .now, uid: UUID(), name: "", occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil))
 }

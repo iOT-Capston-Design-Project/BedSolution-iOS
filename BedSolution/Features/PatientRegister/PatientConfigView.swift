@@ -9,27 +9,27 @@ import SwiftUI
 
 struct PatientConfigView: View {
     @Environment(\.theme) private var theme
-    @Binding var cautionOcciput: Bool
-    @Binding var cautionScapula: Bool
-    @Binding var cautionElbow: Bool
-    @Binding var cautionHip: Bool
-    @Binding var cautionHeel: Bool
+    @Binding var occiputTime: Int?
+    @Binding var scapulaTime: Int?
+    @Binding var elbowTime: Int?
+    @Binding var hipTime: Int?
+    @Binding var heelTime: Int?
     var onNext: () -> Void
     
     var body: some View {
         VStack {
             Spacer()
             VStack(spacing: 25) {
-                Text("조심해야 할 부위를 탭하여 선택해주세요")
+                Text("주의해야 할 부위를 탭하여 선택해주세요")
                     .textStyle(theme.textTheme.emphasizedTitleMedium)
                 HumanConfig(
-                    cautionOcciput: $cautionOcciput,
-                    cautionScapula: $cautionScapula,
-                    cautionElbow: $cautionElbow,
-                    cautionHip: $cautionHip,
-                    cautionHeel: $cautionHeel
+                    occiputTime: $occiputTime,
+                    scapulaTime: $scapulaTime,
+                    elbowTime: $elbowTime,
+                    hipTime: $hipTime,
+                    heelTime: $heelTime
                 )
-                Text("선택된 부위는 더 세심히 관찰되고 긴급 알림을 받을 수 있어요")
+                Text("부위별 최대 압력 시간은 선택 후,\n환자 설정에서 수정할 수 있습니다.")
                     .frame(width: 250)
                     .multilineTextAlignment(.center)
                     .textStyle(theme.textTheme.bodyLarge)
@@ -47,10 +47,10 @@ struct PatientConfigView: View {
 }
 
 #Preview {
-    @Previewable @State var cautionOcciput: Bool = false
-    @Previewable @State var cautionScapula: Bool = false
-    @Previewable @State var cautionElbow: Bool = false
-    @Previewable @State var cautionHip: Bool = false
-    @Previewable @State var cautionHeel: Bool = false
-    PatientConfigView(cautionOcciput: $cautionOcciput, cautionScapula: $cautionScapula, cautionElbow: $cautionElbow, cautionHip: $cautionHip, cautionHeel: $cautionHeel, onNext: {})
+    @Previewable @State var occiputTime: Int?
+    @Previewable @State var scapulaTime: Int?
+    @Previewable @State var elbowTime: Int?
+    @Previewable @State var hipTime: Int?
+    @Previewable @State var heelTime: Int?
+    PatientConfigView(occiputTime: $occiputTime, scapulaTime: $scapulaTime, elbowTime: $elbowTime, hipTime: $hipTime, heelTime: $heelTime, onNext: {})
 }

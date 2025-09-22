@@ -37,5 +37,5 @@ struct PatientCell: View {
 }
 
 #Preview {
-    PatientCell(patient: Patient(id: 0, createdAt: .now, uid: UUID(), name: "Lee Jaeho", cautionOcciput: true, cautionScapula: false, cautionElbow: true, cautionHip: true, cautionHeel: false))
+    PatientCell(patient: Patient(id: 123, createdAt: .now, uid: UUID(), name: "", occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil))
 }

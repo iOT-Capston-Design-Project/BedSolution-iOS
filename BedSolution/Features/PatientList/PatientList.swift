@@ -10,33 +10,35 @@ import Logging
 
 struct PatientList: View {
     @Environment(\.theme) private var theme
-    @State private var patients: [Patient] = []
+    @Environment(AuthService.self) private var auth
+    @Environment(PatientsController.self) private var patients
     @State private var addPatient = false
     @Binding var selection: Patient?
     private let logger = Logger(label: "PatientList")
     
     var body: some View {
         List(selection: $selection) {
-            ForEach(patients) { patient in
+            ForEach(patients.patients) { patient in
                 PatientCell(patient: patient)
                     .listRowBackground(RoundedRectangle(cornerRadius: 16).foregroundColorSet(theme.colorTheme.surfaceContainer))
                     .tag(patient)
                     .swipeActions(allowsFullSwipe: false) {
-                        Button(action: {}) {
+                        Button(role: .destructive, action: {
+                            Task { await patients.delete(patient) }
+                        }) {
                             Label("삭제", systemImage: "trash")
                         }
                         .tintColorSet(theme.colorTheme.error)
                     }
             }
         }
+        .animation(.default, value: patients.patients)
         .listRowSpacing(6)
         .scrollContentBackground(.hidden)
         .backgroundColorSet(theme.colorTheme.surface)
-        .refreshable {
-            await fetchPatients()
-        }
+        .refreshable { await refresh() }
         .overlay {
-            if patients.isEmpty {
+            if patients.patients.isEmpty {
                 EmptyPatientView()
                     .transition(.opacity)
             }
@@ -49,29 +51,20 @@ struct PatientList: View {
             }
         }
         .navigationTitle(Text("환자 목록"))
-        .task {
-            await fetchPatients()
-        }
         .sheet(isPresented: $addPatient) {
             NavigationStack {
                 PatientRegisterView()
             }
             .presentationDetents([.large])
+            .onDisappear {
+                Task { await refresh() }
+            }
         }
     }
     
-    private func fetchPatients() async {
-        guard let uid = AuthController.shared.getUID() else {
-            logger.info("No UID")
-            return
-        }
-        let repo = PatientRepository()
-        do {
-            patients = try await repo.list(filter: .init(uid: uid), limit: nil)
-            logger.info("Fetch patients successfully")
-        } catch {
-            logger.error("Fail to fetch patients: \(error.localizedDescription)")
-        }
+    private func refresh() async {
+        guard let uid = auth.uid else { return }
+        await patients.refresh(uid: uid)
     }
 }
 
@@ -79,5 +72,6 @@ struct PatientList: View {
     @Previewable @State var selected: Patient?
     NavigationStack {
         PatientList(selection: $selected)
+            .environment(AuthService())
     }
 }

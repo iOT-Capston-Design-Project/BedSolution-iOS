@@ -9,6 +9,12 @@ import SwiftUI
 
 struct AccumulatedPressureCard: View {
     @Environment(\.theme) private var theme
+    var pressureLog: PressureLog
+    var occiputTime: Int? = nil
+    var scapulaTime: Int? = nil
+    var elbowTime: Int? = nil
+    var hipTime: Int? = nil
+    var heelTime: Int? = nil
     private let columns = Array(repeating: GridItem(), count: 2)
     var caption: LocalizedStringResource = "자세 변경 이후 누적된 압력 시간입니다."
     
@@ -18,11 +24,11 @@ struct AccumulatedPressureCard: View {
                 .textStyle(theme.textTheme.emphasizedTitleMedium)
                 .foregroundColorSet(theme.colorTheme.onSurface)
             LazyVGrid(columns: columns) {
-                PressureInfo(region: "뒤통수", period: 60*60+60*40)
-                PressureInfo(region: "견갑골", period: 60*60+60*10)
-                PressureInfo(region: "팔꿈치", period: 60*30)
-                PressureInfo(region: "엉덩뼈", period: 60*60+60*40)
-                PressureInfo(region: "발꿈치", period: 60*60)
+                PressureInfo(region: "뒤통수", period: pressureLog.occiput, threshold: occiputTime)
+                PressureInfo(region: "견갑골", period: pressureLog.scapula, threshold: scapulaTime)
+                PressureInfo(region: "팔꿈치", period: pressureLog.elbow, threshold: elbowTime)
+                PressureInfo(region: "엉덩뼈", period: pressureLog.hip, threshold: hipTime)
+                PressureInfo(region: "발꿈치", period: pressureLog.heel, threshold: heelTime)
             }
             Text(caption)
                 .textStyle(theme.textTheme.labelSmall)
@@ -37,23 +43,46 @@ struct AccumulatedPressureCard: View {
 struct PressureInfo: View {
     @Environment(\.theme) private var theme
     var region: LocalizedStringResource
-    var period: TimeInterval
-    var max: TimeInterval
-    
-    private var formatter: DateComponentsFormatter {
-        let f = DateComponentsFormatter()
-        if period >= 3600 {
-            f.allowedUnits = [.hour, .minute]
-        } else {
-            f.allowedUnits = [.minute]
-        }
-        f.unitsStyle = .brief
-        f.zeroFormattingBehavior = [.pad]
-        return f
-    }
+    var period: Int // s 단위
+    var threshold: Int // min 단위
     
     private var progress: Double {
-        Swift.min(period/max, max)
+        // v: seconds since last posture change (period is already seconds)
+        let v = max(0.0, Double(period))
+        // t: threshold in seconds (input threshold is minutes)
+        let tSec = max(0.0, Double(threshold) * 60.0)
+        // M: maximum window set to 120 minutes (in seconds)
+        let M = 120.0 * 60.0
+        // Clamp v to [0, M]
+        let vc = min(v, M)
+
+        // Handle degenerate cases safely
+        if tSec <= 0 {
+            // No meaningful threshold: scale entire range 0..M directly to 0..1
+            return min(1.0, vc / M)
+        }
+        if M <= tSec {
+            // Avoid zero division in last segment: treat anything beyond t as 1.0 boundary
+            let a = (2.0 / 3.0) * tSec
+            if vc <= a {
+                return a > 0 ? 0.4 * (vc / a) : 0.0
+            } else {
+                let denom = max(1e-9, tSec - a)
+                return min(1.0, 0.4 + 0.2 * ((vc - a) / denom))
+            }
+        }
+
+        // Regular piecewise linear mapping
+        let a = (2.0 / 3.0) * tSec
+        if vc <= a {
+            return a > 0 ? 0.4 * (vc / a) : 0.0
+        } else if vc <= tSec {
+            let denom = max(1e-9, tSec - a) // == tSec/3
+            return 0.4 + 0.2 * ((vc - a) / denom)
+        } else {
+            let denom = max(1e-9, M - tSec)
+            return min(1.0, 0.6 + 0.4 * ((vc - tSec) / denom))
+        }
     }
     private var color: ColorSet {
         switch progress {
@@ -66,10 +95,10 @@ struct PressureInfo: View {
         }
     }
     
-    init(region: LocalizedStringResource, period: TimeInterval, max: TimeInterval = 60*60*2) {
+    init(region: LocalizedStringResource, period: Int, threshold: Int?) {
         self.region = region
         self.period = period
-        self.max = max
+        self.threshold = threshold ?? 120
     }
     
     var body: some View {
@@ -79,7 +108,7 @@ struct PressureInfo: View {
                 .foregroundColorSet(theme.colorTheme.onSurface)
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text(formatter.string(from: period) ?? "NONE")
+                Text(TimeFormatter.formattedDuration(from: Int(period/60)))
                     .textStyle(theme.textTheme.labelLarge)
                     .foregroundColorSet(theme.colorTheme.onSurface)
                 VerticalProgressbar(color: color, progress: progress)
@@ -94,5 +123,5 @@ struct PressureInfo: View {
 }
 
 #Preview {
-    AccumulatedPressureCard()
+    AccumulatedPressureCard(pressureLog: PressureLog())
 }

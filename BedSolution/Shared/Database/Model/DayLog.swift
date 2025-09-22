@@ -32,24 +32,37 @@ nonisolated public struct DayLog: Codable, Identifiable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
-        self.day = try container.decode(Date.self, forKey: .day)
+        // day(date) comes as "yyyy-MM-dd" from DB
+        if let dayString = try? container.decode(String.self, forKey: .day) {
+            if let d = SupabaseService.shared.dateOnlyFormatter.date(from: dayString) {
+                self.day = d
+            } else {
+                throw DecodingError.dataCorruptedError(forKey: .day, in: container, debugDescription: "Invalid date-only format")
+            }
+        } else {
+            // Fallback to decoder's strategy
+            self.day = try container.decode(Date.self, forKey: .day)
+        }
         self.accumulatedOcciput = try container.decode(Int.self, forKey: .accumulatedOcciput)
         self.accumulatedScapula = try container.decode(Int.self, forKey: .accumulatedScapula)
         self.accumulatedElbow = try container.decode(Int.self, forKey: .accumulatedElbow)
         self.accumulatedHip = try container.decode(Int.self, forKey: .accumulatedHip)
         self.accumulatedHeel = try container.decode(Int.self, forKey: .accumulatedHeel)
+        self.deviceID = try container.decode(Int.self, forKey: .deviceID)
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
-        try container.encode(day, forKey: .day)
+        // Encode as date-only string (server baseline UTC)
+        let dayStr = SupabaseService.shared.formatDateOnly(day)
+        try container.encode(dayStr, forKey: .day)
         try container.encode(accumulatedOcciput, forKey: .accumulatedOcciput)
         try container.encode(accumulatedScapula, forKey: .accumulatedScapula)
         try container.encode(accumulatedElbow, forKey: .accumulatedElbow)
         try container.encode(accumulatedHip, forKey: .accumulatedHip)
         try container.encode(accumulatedHeel, forKey: .accumulatedHeel)
-        try container.encodeIfPresent(deviceID, forKey: .deviceID)
+        try container.encode(deviceID, forKey: .deviceID)
     }
     
     init() {}

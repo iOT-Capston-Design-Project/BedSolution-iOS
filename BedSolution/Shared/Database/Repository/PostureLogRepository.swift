@@ -56,14 +56,9 @@ final class PostureLogRepository: RWRepository {
     }
     
     let table: String = "posture_change_logs"
-    private let client: SupabaseClient
+    private let client = SupabaseService.shared.client
     
-    init() {
-        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
-            fatalError("No API key or base URL set")
-        }
-        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
-    }
+    init() {}
     
     @discardableResult
     func insert(_ element: PostureLog) async throws -> Data {
@@ -90,7 +85,7 @@ final class PostureLogRepository: RWRepository {
     func get(filter: Filter?) async throws -> PostureLog? {
         guard let filter else { return nil }
         let response = try await buildFilter(filter: filter).limit(1).execute()
-        return try JSONDecoder().decode([PostureLog].self, from: response.data).first
+        return try SupabaseService.shared.jsonDecoder.decode([PostureLog].self, from: response.data).first
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [PostureLog] {
@@ -102,7 +97,7 @@ final class PostureLogRepository: RWRepository {
         } else {
             response = try await builder.execute()
         }
-        return try JSONDecoder().decode([PostureLog].self, from: response.data)
+        return try SupabaseService.shared.jsonDecoder.decode([PostureLog].self, from: response.data)
     }
     
     func count(filter: Filter?) async throws -> Int {

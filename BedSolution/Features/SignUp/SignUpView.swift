@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import UserNotifications
 import AuthenticationServices
 import Logging
 
 struct SignUpView: View {
     @Environment(\.theme) private var theme
+    @Environment(AuthService.self) private var auth
     @FocusState private var keyboardScope: KeyboardScope?
-    @State private var authController = AuthController.shared
     @State private var email = ""
     @State private var password = ""
     @State private var passwordConfirmation = ""
@@ -20,7 +21,6 @@ struct SignUpView: View {
     @State private var isSigning = false
     @State private var errorOccurred: Bool = false
     @State private var signupError: SignUpError?
-    @State private var registerPatient: Bool = false
     private let logger = Logger(label: "SignUPView")
 
     private enum SignUpState {
@@ -189,9 +189,6 @@ struct SignUpView: View {
             .padding(EdgeInsets(top: 0, leading: 25, bottom: 30, trailing: 25))
             .backgroundColorSet(theme.colorTheme.surface)
             .ignoresSafeArea(.keyboard)
-            .navigationDestination(isPresented: $registerPatient) {
-                PatientRegisterView()
-            }
         }
         .alert(isPresented: $errorOccurred, error: signupError) { _ in
             Button(action: { signupError = nil ; errorOccurred = false }) {
@@ -199,6 +196,14 @@ struct SignUpView: View {
             }
         } message: { error in
             Text(error.localizedDescription)
+        }
+    }
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                logger.error("Failed to request notification permission: \(error)")
+            }
         }
     }
     
@@ -210,7 +215,7 @@ struct SignUpView: View {
         keyboardScope = .none
         isSigning = true
         Task {
-            let isSuccess = await authController.signup(email: email, password: password)
+            let isSuccess = await auth.signup(email: email, password: password)
             logger.info("Success to sign up")
             isSigning = false
             if !isSuccess {
@@ -218,12 +223,7 @@ struct SignUpView: View {
                 signupError = .signupFailed
                 return
             }
-            if !(await authController.isPatientRegistered()) {
-                logger.info("Patient is not exit. Navigating to register patient page.")
-                registerPatient = true
-                return
-            }
-            logger.info("Patient is exit. Signing in.")
+            requestNotificationPermission()
         }
     }
     
@@ -235,7 +235,7 @@ struct SignUpView: View {
         keyboardScope = .none
         isSigning = true
         Task {
-            let isSuccess = await authController.signin(email: email, password: password)
+            let isSuccess = await auth.signin(email: email, password: password)
             logger.info("Success to sign in")
             isSigning = false
             if !isSuccess {
@@ -243,12 +243,7 @@ struct SignUpView: View {
                 signupError = .signinFailed
                 return
             }
-            if !(await authController.isPatientRegistered()) {
-                logger.info("Patient is not exit. Navigating to register patient page.")
-                registerPatient = true
-                return
-            }
-            logger.info("Patient is exit. Signing in.")
+            requestNotificationPermission()
         }
     }
     
@@ -266,4 +261,5 @@ struct SignUpView: View {
 
 #Preview {
     SignUpView()
+        .environment(AuthService())
 }

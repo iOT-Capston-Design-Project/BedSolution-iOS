@@ -9,6 +9,13 @@ import SwiftUI
 
 struct PatientStatusCard: View {
     @Environment(\.theme) private var theme
+    var name: String
+    var occiputTime: Int? = nil
+    var scapulaTime: Int? = nil
+    var elbowTime: Int? = nil
+    var hipTime: Int? = nil
+    var heelTime: Int? = nil
+    var pressureLog: PressureLog
     
     private enum DamageStatus {
         case low
@@ -25,6 +32,18 @@ struct PatientStatusCard: View {
                 "상"
             }
         }
+        
+        static func getStatus(pressure: Int, threshold: Int?) -> DamageStatus {
+            let threshold = (threshold ?? 120)*60
+            switch pressure {
+            case 0..<threshold:
+                return .mid
+            case threshold...:
+                return .high
+            default:
+                return .low
+            }
+        }
     }
     
     private var blueprint: some View {
@@ -34,49 +53,49 @@ struct PatientStatusCard: View {
                 .aspectRatio(contentMode: .fit)
             // 엉덩뼈
             ZStack {
-                spot(status: .low)
+                spot(status: DamageStatus.getStatus(pressure: pressureLog.hip, threshold: hipTime))
                 label(
-                    text: "엉덩뼈 (압력정도: \(DamageStatus.low.localizedDescription)",
-                    status: .low
+                    text: "엉덩뼈 (압력정도: \(DamageStatus.getStatus(pressure: pressureLog.hip, threshold: hipTime).localizedDescription)",
+                    status: DamageStatus.getStatus(pressure: pressureLog.hip, threshold: hipTime)
                 )
                 .offset(y: 28)
             }
             // 뒤통수
             ZStack {
-                spot(status: .high)
+                spot(status: DamageStatus.getStatus(pressure: pressureLog.occiput, threshold: occiputTime))
                 label(
-                    text: "뒤통수 (압력정도: \(DamageStatus.high.localizedDescription)",
-                    status: .high
+                    text: "뒤통수 (압력정도: \(DamageStatus.getStatus(pressure: pressureLog.occiput, threshold: occiputTime).localizedDescription)",
+                    status: DamageStatus.getStatus(pressure: pressureLog.occiput, threshold: occiputTime)
                 )
                 .offset(x: -45, y: -28)
             }
             .offset(y: -100)
             // 견갑골
             ZStack {
-                spot(status: .mid)
+                spot(status: DamageStatus.getStatus(pressure: pressureLog.scapula, threshold: scapulaTime))
                 label(
-                    text: "견갑골 (압력정도: \(DamageStatus.mid.localizedDescription)",
-                    status: .mid
+                    text: "견갑골 (압력정도: \(DamageStatus.getStatus(pressure: pressureLog.scapula, threshold: scapulaTime).localizedDescription)",
+                    status: DamageStatus.getStatus(pressure: pressureLog.scapula, threshold: scapulaTime)
                 )
                 .offset(x: 80, y: -10)
             }
             .offset(x: 25, y: -75)
             // 팔꿈치
             ZStack {
-                spot(status: .low)
+                spot(status: DamageStatus.getStatus(pressure: pressureLog.elbow, threshold: elbowTime))
                 label(
-                    text: "팔꿈치 (압력정도: \(DamageStatus.low.localizedDescription)",
-                    status: .low
+                    text: "팔꿈치 (압력정도: \(DamageStatus.getStatus(pressure: pressureLog.elbow, threshold: elbowTime).localizedDescription)",
+                    status: DamageStatus.getStatus(pressure: pressureLog.elbow, threshold: elbowTime)
                 )
                 .offset(x: 80)
             }
             .offset(x: 40, y: -40)
             // 발꿈치
             ZStack {
-                spot(status: .high)
+                spot(status: DamageStatus.getStatus(pressure: pressureLog.heel, threshold: heelTime))
                 label(
-                    text: "발꿈치 (압력정도: \(DamageStatus.high.localizedDescription)",
-                    status: .high
+                    text: "발꿈치 (압력정도: \(DamageStatus.getStatus(pressure: pressureLog.heel, threshold: heelTime).localizedDescription)",
+                    status: DamageStatus.getStatus(pressure: pressureLog.heel, threshold: heelTime)
                 )
                 .offset(x: 80, y: -10)
             }
@@ -89,7 +108,7 @@ struct PatientStatusCard: View {
         VStack(alignment: .center, spacing: 3) {
             VStack(alignment: .leading, spacing: 3) {
                 HStack {
-                    Text("NAME")
+                    Text(name)
                         .textStyle(theme.textTheme.emphasizedTitleLarge)
                     Text("환자 상태")
                         .textStyle(theme.textTheme.titleLarge)
@@ -97,7 +116,7 @@ struct PatientStatusCard: View {
                 .foregroundColorSet(theme.colorTheme.onSurface)
                 HStack(spacing: 5) {
                     Text("마지막 자세 변경 시간")
-                    Text(Date.now, format: .dateTime.hour().minute())
+                    Text(pressureLog.createdAt, format: .dateTime.hour().minute())
                 }
                 .textStyle(theme.textTheme.emphasizedTitleSmall)
                 .foregroundColorSet(theme.colorTheme.error)
@@ -106,14 +125,6 @@ struct PatientStatusCard: View {
             
             blueprint
                 .padding(EdgeInsets(top: 25, leading: 0, bottom: 15, trailing: 0))
-            
-            HStack {
-                Spacer()
-                Text("마지막 업데이트 시간")
-                Text(Date.now, format: .dateTime)
-            }
-            .textStyle(theme.textTheme.labelSmall)
-            .foregroundColorSet(theme.colorTheme.onSurface)
         }
         .padding(EdgeInsets(top: 10, leading: 8, bottom: 8, trailing: 8))
         .backgroundColorSet(theme.colorTheme.surfaceContainer, in: RoundedRectangle(cornerRadius: 15))
@@ -185,5 +196,5 @@ struct PatientStatusCard: View {
 }
 
 #Preview {
-    PatientStatusCard()
+    PatientStatusCard(name: "Lee Jaeho", pressureLog: PressureLog())
 }

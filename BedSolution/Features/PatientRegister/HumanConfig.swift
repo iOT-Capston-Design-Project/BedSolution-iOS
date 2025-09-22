@@ -9,11 +9,11 @@ import SwiftUI
 
 struct HumanConfig: View {
     @Environment(\.theme) private var theme
-    @Binding var cautionOcciput: Bool
-    @Binding var cautionScapula: Bool
-    @Binding var cautionElbow: Bool
-    @Binding var cautionHip: Bool
-    @Binding var cautionHeel: Bool
+    @Binding var occiputTime: Int?
+    @Binding var scapulaTime: Int?
+    @Binding var elbowTime: Int?
+    @Binding var hipTime: Int?
+    @Binding var heelTime: Int?
     
     var body: some View {
         ZStack {
@@ -22,48 +22,58 @@ struct HumanConfig: View {
                 .aspectRatio(contentMode: .fit)
             
             ZStack {
-                spot(isActive: cautionHeel)
-                    .onTapGesture { cautionHeel.toggle() }
-                label(text: "발꿈치", isActive: cautionHeel)
-                    .offset(x: 30, y: -20)
+                spot(isActive: heelTime != nil)
+                    .onTapGesture {
+                        heelTime = heelTime == nil ? 60: nil
+                    }
+                label(text: "발꿈치", time: heelTime)
+                    .offset(y: -30)
             }
             .offset(x: 23, y: 190)
-            .animation(.default, value: cautionHeel)
+            .animation(.default, value: heelTime)
             
             ZStack {
-                spot(isActive: cautionHip)
-                    .onTapGesture { cautionHip.toggle() }
-                label(text: "엉덩뼈", isActive: cautionHip)
-                    .offset(x: 40, y: 5)
+                spot(isActive: hipTime != nil)
+                    .onTapGesture {
+                        hipTime = hipTime == nil ? 60: nil
+                    }
+                label(text: "엉덩뼈", time: hipTime)
+                    .offset(y: 30)
             }
-            .animation(.default, value: cautionHip)
+            .animation(.default, value: hipTime)
             
             ZStack {
-                spot(isActive: cautionElbow)
-                    .onTapGesture { cautionElbow.toggle() }
-                label(text: "팔꿈치", isActive: cautionElbow)
-                    .offset(x: 38, y: -10)
+                spot(isActive: elbowTime != nil)
+                    .onTapGesture {
+                        elbowTime = elbowTime == nil ? 60: nil
+                    }
+                label(text: "팔꿈치", time: elbowTime)
+                    .offset(x: 25, y: 30)
             }
             .offset(x: 65, y: -55)
-            .animation(.default, value: cautionElbow)
+            .animation(.default, value: elbowTime)
             
             ZStack {
-                spot(isActive: cautionScapula)
-                    .onTapGesture { cautionScapula.toggle() }
-                label(text: "견갑골", isActive: cautionScapula)
-                    .offset(x: 40, y: 0)
+                spot(isActive: scapulaTime != nil)
+                    .onTapGesture {
+                        scapulaTime = scapulaTime == nil ? 60: nil
+                    }
+                label(text: "견갑골", time: scapulaTime)
+                    .offset(x: 0, y: 30)
             }
             .offset(x: 36, y: -120)
-            .animation(.default, value: cautionScapula)
+            .animation(.default, value: scapulaTime)
             
             ZStack {
-                spot(isActive: cautionOcciput)
-                    .onTapGesture { cautionOcciput.toggle() }
-                label(text: "뒤통수", isActive: cautionOcciput)
-                    .offset(x: 0, y: -30)
+                spot(isActive: occiputTime != nil)
+                    .onTapGesture {
+                        occiputTime = occiputTime == nil ? 60: nil
+                    }
+                label(text: "뒤통수", time: occiputTime)
+                    .offset(y: -30)
             }
             .offset(x: 0, y: -160)
-            .animation(.default, value: cautionOcciput)
+            .animation(.default, value: occiputTime)
         }
         .frame(height: 400)
     }
@@ -86,20 +96,28 @@ struct HumanConfig: View {
     }
     
     @ViewBuilder
-    private func label(text: LocalizedStringResource, isActive: Bool) -> some View {
-        Text(text)
-            .textStyle(theme.textTheme.emphasizedLabelLarge)
-            .foregroundColorSet(isActive ? theme.colorTheme.onErrorContainer: theme.colorTheme.onSurfaceVarient)
-            .padding(EdgeInsets(top: 1, leading: 5, bottom: 1, trailing: 5))
-            .backgroundColorSet(isActive ? theme.colorTheme.errorContainer: theme.colorTheme.surfaceContainerHigh, in: Capsule())
+    private func label(text: LocalizedStringResource, time: Int?) -> some View {
+        let isActive = time != nil
+        HStack(spacing: 5) {
+            Text(text)
+            if let time {
+                Text(TimeFormatter.formattedDuration(from: time))
+            }
+        }
+        .textStyle(theme.textTheme.emphasizedLabelLarge)
+        .foregroundColorSet(isActive ? theme.colorTheme.onErrorContainer: theme.colorTheme.onSurfaceVarient)
+        .padding(EdgeInsets(top: 1, leading: 5, bottom: 1, trailing: 5))
+        .backgroundColorSet(isActive ? theme.colorTheme.errorContainer: theme.colorTheme.surfaceContainerHigh, in: Capsule())
     }
 }
 
+
+
 #Preview {
-    @Previewable @State var cautionOcciput: Bool = false
-    @Previewable @State var cautionScapula: Bool = false
-    @Previewable @State var cautionElbow: Bool = false
-    @Previewable @State var cautionHip: Bool = false
-    @Previewable @State var cautionHeel: Bool = false
-    HumanConfig(cautionOcciput: $cautionOcciput, cautionScapula: $cautionScapula, cautionElbow: $cautionElbow, cautionHip: $cautionHip, cautionHeel: $cautionHeel)
+    @Previewable @State var occiputTime: Int?
+    @Previewable @State var scapulaTime: Int?
+    @Previewable @State var elbowTime: Int?
+    @Previewable @State var hipTime: Int?
+    @Previewable @State var heelTime: Int?
+    HumanConfig(occiputTime: $occiputTime, scapulaTime: $scapulaTime, elbowTime: $elbowTime, hipTime: $hipTime, heelTime: $heelTime)
 }

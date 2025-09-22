@@ -20,22 +20,17 @@ final class DayLogRepository: ReadRepository {
     }
     
     let table: String = "day_logs"
-    private let client: SupabaseClient
+    private let client = SupabaseService.shared.client
     private let logger = Logger(label: "DayLogRepository")
     
-    init() {
-        guard let baseURL = APIConfiguration.shared.baseURL, let apiKey = APIConfiguration.shared.apiKey else {
-            fatalError("No API key or base URL set")
-        }
-        self.client = SupabaseClient(supabaseURL: baseURL, supabaseKey: apiKey)
-    }
+    init() {}
     
     func get(filter: Filter?) async throws -> DayLog? {
         guard let filter else { return nil }
         let builder = buildFilter(filter).limit(1)
         let response = try await builder.execute()
         logger.info("Get response: \(response.response.statusCode)")
-        return try JSONDecoder().decode([DayLog].self, from: response.data).first
+        return try SupabaseService.shared.jsonDecoder.decode([DayLog].self, from: response.data).first
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [DayLog] {
@@ -46,7 +41,7 @@ final class DayLogRepository: ReadRepository {
         }
         let response = try await builder.execute()
         logger.info("Get response: \(response.response.statusCode)")
-        return try JSONDecoder().decode([DayLog].self, from: response.data)
+        return try SupabaseService.shared.jsonDecoder.decode([DayLog].self, from: response.data)
     }
     
     func count(filter: Filter?) async throws -> Int {
@@ -62,18 +57,23 @@ final class DayLogRepository: ReadRepository {
             .select(head: head, count: head ? count: nil)
             .eq(DayLog.CodingKeys.deviceID.rawValue, value: filter.deviceID)
         if let day = filter.day {
+            let dayOnly = SupabaseService.shared.formatDateOnly(day)
             builder = builder
-                .eq(DayLog.CodingKeys.day.rawValue, value: day.formatted(.iso8601))
+                .eq(DayLog.CodingKeys.day.rawValue, value: dayOnly)
         } else if let minDate = filter.minDate, let maxDate = filter.maxDate {
+            let minStr = SupabaseService.shared.formatDateOnly(minDate)
+            let maxStr = SupabaseService.shared.formatDateOnly(maxDate)
             builder = builder
-                .gt(DayLog.CodingKeys.day.rawValue, value: minDate.formatted(.iso8601))
-                .lt(DayLog.CodingKeys.day.rawValue, value: maxDate.formatted(.iso8601))
+                .gt(DayLog.CodingKeys.day.rawValue, value: minStr)
+                .lt(DayLog.CodingKeys.day.rawValue, value: maxStr)
         } else if let minDate = filter.minDate {
+            let minStr = SupabaseService.shared.formatDateOnly(minDate)
             builder = builder
-                .gt(DayLog.CodingKeys.day.rawValue, value: minDate.formatted(.iso8601))
+                .gt(DayLog.CodingKeys.day.rawValue, value: minStr)
         } else if let maxDate = filter.maxDate {
+            let maxStr = SupabaseService.shared.formatDateOnly(maxDate)
             builder = builder
-                .lt(DayLog.CodingKeys.day.rawValue, value: maxDate.formatted(.iso8601))
+                .lt(DayLog.CodingKeys.day.rawValue, value: maxStr)
         }
         return builder
     }

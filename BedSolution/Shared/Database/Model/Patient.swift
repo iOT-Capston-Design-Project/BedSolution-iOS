@@ -16,11 +16,11 @@ public struct Patient: Codable, Hashable, Identifiable {
     public var name: String = ""
     public var height: Float?
     public var weight: Float?
-    public var cautionOcciput: Bool = false
-    public var cautionScapula: Bool = false
-    public var cautionElbow: Bool = false
-    public var cautionHip: Bool = false
-    public var cautionHeel: Bool = false
+    public var occiputTime: Int?
+    public var scapulaTime: Int?
+    public var elbowTime: Int?
+    public var hipTime: Int?
+    public var heelTime: Int?
     public var deviceID: Int?
     
     
@@ -32,11 +32,11 @@ public struct Patient: Codable, Hashable, Identifiable {
         case name
         case height
         case weight
-        case cautionOcciput = "caution_occiput"
-        case cautionScapula = "caution_scapula"
-        case cautionElbow = "caution_elbow"
-        case cautionHip = "caution_hip"
-        case cautionHeel = "caution_heel"
+        case occiputTime = "occiput_time"
+        case scapulaTime = "scapula_time"
+        case elbowTime = "elbow_time"
+        case hipTime = "hip_time"
+        case heelTime = "heel_time"
         case deviceID = "device_id"
     }
     
@@ -52,11 +52,11 @@ public struct Patient: Codable, Hashable, Identifiable {
         self.name = try container.decode(String.self, forKey: .name)
         self.height = try container.decodeIfPresent(Float.self, forKey: .height)
         self.weight = try container.decodeIfPresent(Float.self, forKey: .weight)
-        self.cautionOcciput = try container.decode(Bool.self, forKey: .cautionOcciput)
-        self.cautionScapula = try container.decode(Bool.self, forKey: .cautionScapula)
-        self.cautionElbow = try container.decode(Bool.self, forKey: .cautionElbow)
-        self.cautionHip = try container.decode(Bool.self, forKey: .cautionHip)
-        self.cautionHeel = try container.decode(Bool.self, forKey: .cautionHeel)
+        self.occiputTime = try container.decodeIfPresent(Int.self, forKey: .occiputTime)
+        self.scapulaTime = try container.decodeIfPresent(Int.self, forKey: .scapulaTime)
+        self.elbowTime = try container.decodeIfPresent(Int.self, forKey: .elbowTime)
+        self.hipTime = try container.decodeIfPresent(Int.self, forKey: .hipTime)
+        self.heelTime = try container.decodeIfPresent(Int.self, forKey: .heelTime)
         self.deviceID = try container.decodeIfPresent(Int.self, forKey: .deviceID)
     }
     
@@ -69,11 +69,11 @@ public struct Patient: Codable, Hashable, Identifiable {
         try container.encode(name, forKey: .name)
         try container.encodeIfPresent(height, forKey: .height)
         try container.encodeIfPresent(weight, forKey: .weight)
-        try container.encode(cautionOcciput, forKey: .cautionOcciput)
-        try container.encode(cautionScapula, forKey: .cautionScapula)
-        try container.encode(cautionElbow, forKey: .cautionElbow)
-        try container.encode(cautionHip, forKey: .cautionHip)
-        try container.encode(cautionHeel, forKey: .cautionHeel)
+        try container.encodeIfPresent(occiputTime, forKey: .occiputTime)
+        try container.encodeIfPresent(scapulaTime, forKey: .scapulaTime)
+        try container.encodeIfPresent(elbowTime, forKey: .elbowTime)
+        try container.encodeIfPresent(hipTime, forKey: .hipTime)
+        try container.encodeIfPresent(heelTime, forKey: .heelTime)
         try container.encodeIfPresent(deviceID, forKey: .deviceID)
     }
     
@@ -89,11 +89,11 @@ public struct Patient: Codable, Hashable, Identifiable {
             self.name = decoded.name
             self.height = decoded.height
             self.weight = decoded.weight
-            self.cautionOcciput = decoded.cautionOcciput
-            self.cautionScapula = decoded.cautionScapula
-            self.cautionElbow = decoded.cautionElbow
-            self.cautionHip = decoded.cautionHip
-            self.cautionHeel = decoded.cautionHeel
+            self.occiputTime = decoded.occiputTime
+            self.scapulaTime = decoded.scapulaTime
+            self.elbowTime = decoded.elbowTime
+            self.hipTime = decoded.hipTime
+            self.heelTime = decoded.heelTime
             self.deviceID = decoded.deviceID
         } catch {
             return nil
@@ -104,7 +104,7 @@ public struct Patient: Codable, Hashable, Identifiable {
         id: Int?,
         createdAt: Date, updatedAt: Date? = nil,
         uid: UUID, name: String, height: Float? = nil, weight: Float? = nil,
-        cautionOcciput: Bool, cautionScapula: Bool, cautionElbow: Bool, cautionHip: Bool, cautionHeel: Bool,
+        occiputTime: Int?, scapulaTime: Int?, elbowTime: Int?, hipTime: Int?, heelTime: Int?,
         deviceID: Int? = nil
     ) {
         if let id {
@@ -116,11 +116,17 @@ public struct Patient: Codable, Hashable, Identifiable {
         self.name = name
         self.height = height
         self.weight = weight
-        self.cautionOcciput = cautionOcciput
-        self.cautionScapula = cautionScapula
-        self.cautionElbow = cautionElbow
-        self.cautionHip = cautionHip
-        self.cautionHeel = cautionHeel
+        self.occiputTime = occiputTime
+        self.scapulaTime = scapulaTime
+        self.elbowTime = elbowTime
+        self.hipTime = hipTime
+        self.heelTime = heelTime
         self.deviceID = deviceID
     }
+}
+
+// Ensure SwiftUI selection/tag uses stable identity only by `id`.
+public extension Patient {
+    static func == (lhs: Patient, rhs: Patient) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

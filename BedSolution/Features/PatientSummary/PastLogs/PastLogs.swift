@@ -8,29 +8,17 @@
 import SwiftUI
 
 struct PastLogs: View {
-    private enum ActiveSource {
-        case none, left, right
-    }
     @Environment(\.theme) private var theme
+    @Environment(PatientInfoController.self) private var patientInfo
+    @State private var controller = PastLogsController()
     // Scroll view position
     @State private var scrollPosition = ScrollPosition(y: 0)
     @State private var rightX: CGFloat = 0
-    @State private var dayLogs: [DayLog] = (0..<20).map { id in
-        DayLog(id: id, day: Calendar.current.date(byAdding: .day, value: -id, to: .now)!, accumulatedOcciput: 10, accumulatedScapula: 10, accumulatedElbow: 10, accumulatedHip: 10, accumulatedHeel: 10, deviceID: 0)
-    }
     @State private var selectedLog: DayLog? = nil
     private let rowHeight: CGFloat = 55
     private let headerHeight: CGFloat = 40
     private let columnWidth: CGFloat = 120
     private let columns: [String] = ["뒤통수", "견갑골", "팔꿈치", "엉덩뼈", "발꿈치"]
-    
-    private var formatter: DateComponentsFormatter = {
-        let f = DateComponentsFormatter()
-        f.allowedUnits = [.hour, .minute]
-        f.unitsStyle = .brief
-        f.zeroFormattingBehavior = [.pad]
-        return f
-    }()
     
     private var columnDivider: some View {
         Rectangle()
@@ -47,7 +35,7 @@ struct PastLogs: View {
                 HStack(spacing: 0) {
                     // Left column
                     LazyVStack(spacing: 0) {
-                        ForEach(dayLogs) { log in
+                        ForEach(controller.dayLogs) { log in
                             Text(log.day, format: .dateTime.year().month().day())
                                 .textStyle(theme.textTheme.emphasizedTitleMedium)
                                 .foregroundColorSet(theme.colorTheme.primary)
@@ -71,13 +59,13 @@ struct PastLogs: View {
                     // Right columns
                     ScrollView(.horizontal) {
                         LazyVStack(spacing: 0) {
-                            ForEach(dayLogs) { log in
+                            ForEach(controller.dayLogs) { log in
                                 HStack(spacing: 0) { // Columns
-                                    columnContent(accumulatedPressure: TimeInterval(30))
-                                    columnContent(accumulatedPressure: TimeInterval(30))
-                                    columnContent(accumulatedPressure: TimeInterval(30))
-                                    columnContent(accumulatedPressure: TimeInterval(30))
-                                    columnContent(accumulatedPressure: TimeInterval(30))
+                                    columnContent(accumulatedPressure: log.accumulatedOcciput)
+                                    columnContent(accumulatedPressure: log.accumulatedScapula)
+                                    columnContent(accumulatedPressure: log.accumulatedElbow)
+                                    columnContent(accumulatedPressure: log.accumulatedHip)
+                                    columnContent(accumulatedPressure: log.accumulatedHeel)
                                 }
                                 .overlay(alignment: .bottom) {
                                     Rectangle()
@@ -106,6 +94,9 @@ struct PastLogs: View {
             .scrollPosition($scrollPosition)
             .scrollBounceBehavior(.basedOnSize)
             .contentMargins(.top, headerHeight)
+            .refreshable {
+                await controller.refresh(deviceID: patientInfo.deviceID)
+            }
             
             // Header
             HStack(spacing: 0) {
@@ -140,14 +131,40 @@ struct PastLogs: View {
                     .foregroundColorSet(theme.colorTheme.outline)
             }
         }
+        .overlay {
+            if controller.dayLogs.isEmpty {
+                Text("과거 기록이 없습니다.")
+                    .textStyle(theme.textTheme.emphasizedLabelLarge)
+                    .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if controller.isFailed {
+                Button(action: {
+                    Task { await controller.refresh(deviceID: patientInfo.deviceID)  }
+                }) {
+                    Label("다시 불러오기", systemImage: "arrow.clockwise")
+                        .textStyle(theme.textTheme.emphasizedLabelLarge)
+                }
+                .buttonStyle(type: .chip, option: .fiilled, primary: theme.colorTheme.secondary, onPrimary: theme.colorTheme.onSecondary)
+            }
+        }
+        .onChange(of: patientInfo.deviceID) { _, deviceID in
+            Task {
+                await controller.refresh(deviceID: deviceID)
+            }
+        }
+        .task {
+            await controller.refresh(deviceID: patientInfo.deviceID)
+        }
         .sheet(item: $selectedLog) { log in
-            PatientLogDetailView()
+            // PatientLogDetailView(patient: patient, dayLog: log)
         }
     }
     
     @ViewBuilder
-    private func columnContent(accumulatedPressure: TimeInterval) -> some View {
-        Text(formatter.string(for: accumulatedPressure) ?? "NONE")
+    private func columnContent(accumulatedPressure: Int) -> some View {
+        Text(TimeFormatter.formattedDuration(from: accumulatedPressure))
             .textStyle(theme.textTheme.bodyLarge)
             .frame(width: columnWidth, height: rowHeight)
             .backgroundColorSet(theme.colorTheme.surfaceContainer)

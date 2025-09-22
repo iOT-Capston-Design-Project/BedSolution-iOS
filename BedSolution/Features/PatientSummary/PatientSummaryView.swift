@@ -29,18 +29,18 @@ struct PatientSummaryView: View {
         }
     }
     enum SheetType: Identifiable {
-        case addPosture, addDevice
+        case addPosture
         
         var id: Int { hashValue }
     }
     @Environment(\.theme) private var theme
-    @State private var tabSize: CGFloat = .zero
+    @Environment(AuthService.self) private var auth
+    @State private var patientInfoController = PatientInfoController()
     @State private var selectedTab = TabItems.summary
-    @State private var tabX: CGFloat = .zero
     @State private var sheetType: SheetType? = nil
     @Namespace private var tabbarSpace
     private let tabHeight: CGFloat = 45
-    var patient: Patient
+    let patientId: Int
     
     var body: some View {
         VStack(spacing: 5) {
@@ -68,32 +68,28 @@ struct PatientSummaryView: View {
             case .summary:
                 CurrentPatientState()
                     .transition(.blurReplace)
+                    .environment(patientInfoController)
             case .pastLogs:
                 PastLogs()
                     .transition(.blurReplace)
+                    .environment(patientInfoController)
             case .patient:
-                PatientInfo(selectedSheet: $sheetType)
+                PatientInfo(controller: patientInfoController)
                     .transition(.blurReplace)
             }
         }
         .backgroundColorSet(theme.colorTheme.surface)
-        .toolbar {
-            ToolbarItem {
-                Button(action: { sheetType = .addPosture }) {
-                    Label("자세 기록", systemImage: "figure")
-                }
-            }
-        }
-        .navigationTitle(Text("환자 이름"))
+        .navigationTitle(Text(patientInfoController.name))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $sheetType) { type in
             switch type {
-            case .addDevice:
-                DeviceRegisterView(patient: patient)
             case .addPosture:
                 PostureLogEditor()
                     .presentationDetents([.medium])
             }
+        }
+        .task {
+            if let uid = auth.uid { await patientInfoController.initialize(id: patientId, uid: uid) }
         }
     }
     
@@ -120,6 +116,7 @@ struct PatientSummaryView: View {
 
 #Preview {
     NavigationStack {
-        PatientSummaryView(patient: Patient())
+        PatientSummaryView(patientId: 0)
+            .environment(AuthService())
     }
 }

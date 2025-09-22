@@ -12,6 +12,8 @@
 		7A080FD92E378A400038CF0F /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 7A080FD82E378A400038CF0F /* Realtime */; };
 		7A2EE7AA2E379098006F5FC9 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 7A2EE7A92E379098006F5FC9 /* Logging */; };
 		7A2EE7AD2E37917A006F5FC9 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7A2EE7AC2E37917A006F5FC9 /* Supabase */; };
+		7ADCA69F2E8162EA00FCDE94 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7ADCA69E2E8162EA00FCDE94 /* FirebaseAnalytics */; };
+		7ADCA6A12E8162EA00FCDE94 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 7ADCA6A02E8162EA00FCDE94 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,8 @@
 			files = (
 				7A2EE7AD2E37917A006F5FC9 /* Supabase in Frameworks */,
 				7A080FD92E378A400038CF0F /* Realtime in Frameworks */,
+				7ADCA6A12E8162EA00FCDE94 /* FirebaseMessaging in Frameworks */,
+				7ADCA69F2E8162EA00FCDE94 /* FirebaseAnalytics in Frameworks */,
 				7A080FD72E378A400038CF0F /* PostgREST in Frameworks */,
 				7A2EE7AA2E379098006F5FC9 /* Logging in Frameworks */,
 				7A080FD52E378A400038CF0F /* Auth in Frameworks */,
@@ -144,6 +148,8 @@
 				7A080FD82E378A400038CF0F /* Realtime */,
 				7A2EE7A92E379098006F5FC9 /* Logging */,
 				7A2EE7AC2E37917A006F5FC9 /* Supabase */,
+				7ADCA69E2E8162EA00FCDE94 /* FirebaseAnalytics */,
+				7ADCA6A02E8162EA00FCDE94 /* FirebaseMessaging */,
 			);
 			productName = BedSolution;
 			productReference = 7A8DEE612E2A6B120011DCE1 /* BedSolution.app */;
@@ -180,6 +186,7 @@
 			packageReferences = (
 				7A080FD32E378A400038CF0F /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				7A2EE7A82E379098006F5FC9 /* XCRemoteSwiftPackageReference "swift-log" */,
+				7ADCA69D2E8162EA00FCDE94 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7A8DEE622E2A6B120011DCE1 /* Products */;
@@ -537,6 +544,14 @@
 				minimumVersion = 1.6.4;
 			};
 		};
+		7ADCA69D2E8162EA00FCDE94 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -564,6 +579,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7A080FD32E378A400038CF0F /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		7ADCA69E2E8162EA00FCDE94 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7ADCA69D2E8162EA00FCDE94 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		7ADCA6A02E8162EA00FCDE94 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7ADCA69D2E8162EA00FCDE94 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
