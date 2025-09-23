@@ -49,7 +49,7 @@ final class PatientInfoController {
             if let patient = try await patientRepository.get(filter: .init(uid: uid, id: id)) {
                 initialize(with: patient)
             } else {
-                logger.error("No patient found with id: \(id)")
+                logger.warning("No patient found with id: \(id)")
             }
         } catch {
             logger.error("Failure to get patient: \(error.localizedDescription)")

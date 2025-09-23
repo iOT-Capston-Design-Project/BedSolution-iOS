@@ -114,8 +114,12 @@ struct PatientSummaryView: View {
                     .presentationDetents([.medium])
             }
         }
-        .task {
-            if let uid = auth.uid { await patientInfoController.initialize(id: patientId, uid: uid) }
+        .onAppear {
+            Task {
+                if let uid = auth.uid {
+                    await patientInfoController.initialize(id: patientId, uid: uid)
+                }
+            }
         }
     }
     
