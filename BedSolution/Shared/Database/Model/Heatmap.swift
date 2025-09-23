@@ -12,8 +12,7 @@ public struct Heatmap: Codable, Hashable, Identifiable {
     public var id: Int = 0
     public var deviceID: Int = 0
     public var sensors: [Int] = []
-    
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case deviceID = "device_id"
@@ -24,7 +23,8 @@ public struct Heatmap: Codable, Hashable, Identifiable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
         self.deviceID = try container.decode(Int.self, forKey: .deviceID)
-        self.sensors = try container.decode([Int].self, forKey: .sensors)
+        let values = try container.decode([Double].self, forKey: .sensors)
+        self.sensors = values.map { Int($0.rounded()) }
     }
     
     init() {}

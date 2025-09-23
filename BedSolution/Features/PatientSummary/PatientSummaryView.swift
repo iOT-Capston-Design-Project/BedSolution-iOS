@@ -36,9 +36,9 @@ struct PatientSummaryView: View {
     @Environment(\.theme) private var theme
     @Environment(AuthService.self) private var auth
     @State private var patientInfoController = PatientInfoController()
+    @State private var showHeatmap = false
     @State private var selectedTab = TabItems.summary
     @State private var sheetType: SheetType? = nil
-    @Namespace private var tabbarSpace
     private let tabHeight: CGFloat = 45
     let patientId: Int
     
@@ -79,8 +79,34 @@ struct PatientSummaryView: View {
             }
         }
         .backgroundColorSet(theme.colorTheme.surface)
-        .navigationTitle(Text(patientInfoController.name))
+        .allowsHitTesting(!showHeatmap)
+        .interactiveDismissDisabled(showHeatmap)
+        .navigationBarBackButtonHidden(showHeatmap)
+        .overlay {
+            if showHeatmap {
+                Rectangle()
+                    .foregroundStyle(.thinMaterial)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                HeatmapViewer(deviceID: patientInfoController.deviceID)
+                    .transition(.scale)
+            }
+        }
+        .navigationTitle(Text(showHeatmap ? "\(patientInfoController.name) 압력 분포": patientInfoController.name))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem {
+                Button(action: {
+                    withAnimation {
+                        showHeatmap.toggle()
+                    }
+                }) {
+                    Label("히트맵", systemImage: showHeatmap ? "xmark": "viewfinder")
+                        .contentTransition(.symbolEffect)
+                }
+                .disabled(patientInfoController.deviceID == nil)
+            }
+        }
         .sheet(item: $sheetType) { type in
             switch type {
             case .addPosture:

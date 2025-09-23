@@ -26,7 +26,8 @@ final class HeatmapRepository: StreamRepository {
         guard let filter else { return nil }
         let response = try await buildFilter(filter).limit(1).execute()
         logger.info("Get response: \(response.response.statusCode)")
-        return try SupabaseService.shared.jsonDecoder.decode(Heatmap.self, from: response.data)
+        logger.debug("JSON: \(String(data: response.data, encoding: .utf8) ?? "<nil>")")
+        return try SupabaseService.shared.jsonDecoder.decode([Heatmap].self, from: response.data).first
     }
     
     func list(filter: Filter?, limit: Int?) async throws -> [Heatmap] {
