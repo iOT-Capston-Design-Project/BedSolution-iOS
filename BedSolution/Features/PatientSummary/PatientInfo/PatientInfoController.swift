@@ -95,9 +95,11 @@ final class PatientInfoController {
         do {
             if let updatedID {
                 try await Messaging.messaging().subscribe(toTopic: String(updatedID))
+                logger.info("Subscribed to device topic: \(updatedID)")
             }
             if let originID {
                 try await Messaging.messaging().unsubscribe(fromTopic: String(originID))
+                logger.info("Unsubscribed from device topic: \(originID)")
             }
         } catch {
             logger.error("Fail to subscribe to device topic: \(error.localizedDescription)")
