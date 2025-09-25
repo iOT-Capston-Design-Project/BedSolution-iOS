@@ -64,9 +64,13 @@ struct CurrentPatientState: View {
         .scrollIndicators(.never)
         .animation(.default, value: controller.needPostureChange)
         .animation(.default, value: controller.warnedPressureLog)
+        .animation(.default, value: controller.pressureLogs)
         .sheet(item: $selectedPostureLog) { postureLog in
             PostureLogDetail(postureLog: postureLog)
                 .presentationDetents([.medium])
+        }
+        .refreshable {
+            await controller.fetch(deviceID: patientInfo.deviceID)
         }
         .onChange(of: patientInfo.deviceID) { _, deviceID in
             Task { await controller.fetch(deviceID: deviceID) }

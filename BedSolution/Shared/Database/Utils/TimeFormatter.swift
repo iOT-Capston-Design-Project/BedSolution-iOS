@@ -14,10 +14,10 @@ enum TimeFormatter {
 
         var components: [String] = []
         if hours > 0 {
-            components.append("\(hours)h")
+            components.append("\(hours)시간")
         }
         if remainingMinutes > 0 || components.isEmpty {
-            components.append("\(remainingMinutes)m")
+            components.append("\(remainingMinutes)분")
         }
 
         return components.joined(separator: " ")
@@ -30,13 +30,13 @@ enum TimeFormatter {
         
         var components: [String] = []
         if hours > 0 {
-            components.append("\(hours)h")
+            components.append("\(hours)시간")
         }
         if minutes > 0 {
-            components.append("\(minutes)m")
+            components.append("\(minutes)분")
         }
         if remainingSeconds > 0 || components.isEmpty {
-            components.append("\(remainingSeconds)s")
+            components.append("\(remainingSeconds)초")
         }
         
         return components.joined(separator: " ")

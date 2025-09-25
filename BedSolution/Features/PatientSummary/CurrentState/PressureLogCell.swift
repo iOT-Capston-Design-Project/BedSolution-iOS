@@ -34,7 +34,7 @@ struct PressureLogCell: View {
             }
             HStack {
                 Spacer()
-                Text(log.createdAt, format: .dateTime)
+                Text(SupabaseService.shared.time.string(from: log.createdAt))
             }
             .textStyle(theme.textTheme.labelMedium)
             .foregroundColorSet(theme.colorTheme.onSurfaceVarient)

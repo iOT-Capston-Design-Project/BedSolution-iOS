@@ -39,7 +39,7 @@ struct PatientLogDetailView: View {
                         // Left column
                         LazyVStack(spacing: 0) {
                             ForEach(dayLog.pressureLogs) { log in
-                                Text(log.createdAt, format: .dateTime.year(.omitted).month(.omitted).day(.omitted).hour(.twoDigits(amPM: .narrow)).minute().second())
+                                Text(SupabaseService.shared.time.string(from: log.createdAt))
                                     .textStyle(theme.textTheme.emphasizedTitleMedium)
                                     .foregroundColorSet(theme.colorTheme.primary)
                                     .frame(width: columnWidth, height: rowHeight)

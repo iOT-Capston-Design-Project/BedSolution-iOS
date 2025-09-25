@@ -116,7 +116,7 @@ struct PatientStatusCard: View {
                 .foregroundColorSet(theme.colorTheme.onSurface)
                 HStack(spacing: 5) {
                     Text("마지막 자세 변경 시간")
-                    Text(pressureLog.createdAt, format: .dateTime.hour().minute())
+                    Text(SupabaseService.shared.time.string(from: pressureLog.createdAt))
                 }
                 .textStyle(theme.textTheme.emphasizedTitleSmall)
                 .foregroundColorSet(theme.colorTheme.error)
