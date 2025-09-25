@@ -55,11 +55,6 @@ struct HeatmapViewer: View {
                 }
             }
             .backgroundColorSet(theme.colorTheme.surfaceContainer, in: RoundedRectangle(cornerRadius: 12))
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(lineWidth: 1)
-                    .foregroundColorSet(theme.colorTheme.outline)
-            }
         }
     }
     
@@ -97,9 +92,14 @@ struct HeatmapViewer: View {
             .aspectRatio(aspectRatio, contentMode: .fit)
             
             if let timestamp = controller.lastUpdated {
-                Text("최종 갱신: \(timestamp, style: .time)")
-                    .textStyle(theme.textTheme.labelMedium)
-                    .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
+                HStack {
+                    Text("최종 갱신:")
+                    Text(timestamp, format: .dateTime.year(.omitted).month(.omitted).day(.omitted).hour().minute().second())
+                        .contentTransition(.numericText())
+                        .animation(.default, value: timestamp)
+                }
+                .textStyle(theme.textTheme.labelMedium)
+                .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
             }
         }
         .task(id: deviceID) {
@@ -137,7 +137,7 @@ struct HeatmapViewer: View {
             return Int(base + modulation)
         }
     }
-    return HeatmapViewer(deviceID: 333712847)
+    return HeatmapViewer(deviceID: 2047364537)
         .padding()
         .background(Color(.systemBackground))
 }

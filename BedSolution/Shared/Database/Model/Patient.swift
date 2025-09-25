@@ -43,6 +43,7 @@ public struct Patient: Codable, Hashable, Identifiable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
+        let str = try container.decode(String.self, forKey: .createdAt)
         self.createdAt = try Date(try container.decode(String.self, forKey: .createdAt), strategy: .iso8601)
         let updatedAtStr = try container.decodeIfPresent(String.self, forKey: .updatedAt)
         if let updatedAtStr {

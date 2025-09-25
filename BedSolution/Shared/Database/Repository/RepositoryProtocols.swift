@@ -25,6 +25,8 @@ protocol RWRepository: ReadRepository {
     func upsert(_ element: Element) async throws -> Data
 }
 
-protocol StreamRepository: ReadRepository {
+protocol StreamRepository {
+    associatedtype Element: Identifiable
+    associatedtype Filter
     func stream(filter: Filter?) -> AsyncStream<Element>
 }

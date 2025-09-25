@@ -94,6 +94,17 @@ struct PatientSummaryView: View {
         }
         .navigationTitle(Text(showHeatmap ? "\(patientInfoController.name) 압력 분포": patientInfoController.name))
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) {
+            if patientInfoController.state == .fetching {
+                HStack {
+                    ProgressView()
+                    Text("환자 정보 불러오는 중")
+                        .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
+                        .textStyle(theme.textTheme.emphasizedLabelLarge)
+                }
+                .transition(.move(edge: .bottom))
+            }
+        }
         .toolbar {
             ToolbarItem {
                 Button(action: {

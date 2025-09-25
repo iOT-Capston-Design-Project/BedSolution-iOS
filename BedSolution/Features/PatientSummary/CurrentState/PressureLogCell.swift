@@ -13,31 +13,31 @@ struct PressureLogCell: View {
     var onSelect: ()->Void
     
     var body: some View {
-        HStack {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("자세: \(log.postureType.title)")
+                .textStyle(theme.textTheme.emphasizedTitleMedium)
+                .foregroundColorSet(theme.colorTheme.onSurface)
             VStack(alignment: .leading) {
-                Text(log.createdAt, format: .dateTime.hour().minute().second())
-                    .textStyle(theme.textTheme.emphasizedBodyLarge)
-                HStack(spacing: 5) {
-                    Text("뒤통수: \(TimeFormatter.formattedDuration(from: Int(log.occiput/60)))")
-                    Text("견갑골: \(TimeFormatter.formattedDuration(from: Int(log.scapula/60)))")
-                    Text("팔꿈치: \(TimeFormatter.formattedDuration(from: Int(log.elbow/60)))")
+                Group {
+                    HStack(spacing: 5) {
+                        Text("뒤통수: \(TimeFormatter.formattedDuration(from: Int(log.occiput/60)))")
+                        Text("견갑골: \(TimeFormatter.formattedDuration(from: Int(log.scapula/60)))")
+                        Text("팔꿈치: \(TimeFormatter.formattedDuration(from: Int(log.elbow/60)))")
+                    }
+                    HStack(spacing: 5) {
+                        Text("엉덩뼈: \(TimeFormatter.formattedDuration(from: Int(log.hip/60)))")
+                        Text("발꿈치: \(TimeFormatter.formattedDuration(from: Int(log.heel/60)))")
+                    }
                 }
                 .textStyle(theme.textTheme.labelLarge)
-                .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
-                
-                HStack(spacing: 5) {
-                    Text("엉덩뼈: \(TimeFormatter.formattedDuration(from: Int(log.hip/60)))")
-                    Text("발꿈치: \(TimeFormatter.formattedDuration(from: Int(log.heel/60)))")
-                }
-                .textStyle(theme.textTheme.labelLarge)
-                .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
+                .foregroundColorSet(theme.colorTheme.onSurface)
             }
-            Spacer()
-            Button(action: onSelect) {
-                Label("기록하기", systemImage: "camera")
-                    .textStyle(theme.textTheme.emphasizedLabelLarge)
+            HStack {
+                Spacer()
+                Text(log.createdAt, format: .dateTime)
             }
-            .buttonStyle(type: .chip, option: .fiilled, primary: theme.colorTheme.tertiary, onPrimary: theme.colorTheme.onTertiary)
+            .textStyle(theme.textTheme.labelMedium)
+            .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
         }
         .padding(EdgeInsets(top: 10, leading: 8, bottom: 10, trailing: 8))
         .backgroundColorSet(theme.colorTheme.surfaceContainer, in: RoundedRectangle(cornerRadius: 15))

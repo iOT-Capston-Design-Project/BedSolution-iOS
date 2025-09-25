@@ -159,7 +159,7 @@ struct PatientInfo: View {
             if controller.isUpdated {
                 Button(action: { Task { await self.controller.update() } }) {
                     HStack(spacing: 5) {
-                        if controller.isUpdating {
+                        if controller.state.isUpdating {
                             ProgressView()
                                 .progressViewStyle(.circular)
                         }
@@ -168,7 +168,7 @@ struct PatientInfo: View {
                     }
                 }
                 .buttonStyle(type: .small, option: .fiilled, primary: theme.colorTheme.primary, onPrimary: theme.colorTheme.onPrimary)
-                .disabled(controller.isUpdating || controller.deviceIDState != .valid)
+                .disabled(controller.state.isUpdating || controller.deviceIDState != .valid)
                 .shadow(radius: 10)
                 .transition(.scale)
             }

@@ -158,7 +158,7 @@ struct PastLogs: View {
             await controller.refresh(deviceID: patientInfo.deviceID)
         }
         .sheet(item: $selectedLog) { log in
-            // PatientLogDetailView(patient: patient, dayLog: log)
+            PatientLogDetailView(deviceID: log.deviceID, id: log.id)
         }
     }
     
@@ -173,4 +173,5 @@ struct PastLogs: View {
 
 #Preview {
     PastLogs()
+        .environment(PatientInfoController())
 }

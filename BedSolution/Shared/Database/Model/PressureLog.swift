@@ -15,6 +15,23 @@ public enum PostureType: Int, Codable {
     case RIGHT_SIDE = 3
     case SUPINE = 4
     case PRONE = 5
+    
+    var title: LocalizedStringResource {
+        switch self {
+        case .UKNOWN:
+            return "미확인"
+        case .SITTING:
+            return "않은 자세"
+        case .LEFT_SIDE:
+            return "좌측와위"
+        case .RIGHT_SIDE:
+            return "우측와위"
+        case .SUPINE:
+            return "앙와위"
+        case .PRONE:
+            return "복와위"
+        }
+    }
 }
 
 nonisolated public struct PressureLog: Codable, Hashable, Identifiable {

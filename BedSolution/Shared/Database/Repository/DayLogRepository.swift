@@ -14,6 +14,7 @@ final class DayLogRepository: ReadRepository {
     
     struct Filter {
         var deviceID: Int
+        var id: Int?
         var day: Date?
         var minDate: Date?
         var maxDate: Date?
@@ -56,6 +57,9 @@ final class DayLogRepository: ReadRepository {
         var builder = client.from(table)
             .select(head: head, count: head ? count: nil)
             .eq(DayLog.CodingKeys.deviceID.rawValue, value: filter.deviceID)
+        if let id = filter.id {
+            builder = builder.eq(DayLog.CodingKeys.id.rawValue, value: id)
+        }
         if let day = filter.day {
             let dayOnly = SupabaseService.shared.formatDateOnly(day)
             builder = builder

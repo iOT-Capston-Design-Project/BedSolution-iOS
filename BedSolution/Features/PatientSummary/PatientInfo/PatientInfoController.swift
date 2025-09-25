@@ -17,6 +17,15 @@ final class PatientInfoController {
     
     enum PatientInfoControllerError: Error {
         case noPatient
+        case updateFailed
+    }
+    
+    enum PatientInfoStates: Equatable {
+        case idle
+        case fetching
+        case loaded
+        case updating
+        case error(PatientInfoControllerError?)
     }
     
     var name: String = ""
@@ -29,8 +38,7 @@ final class PatientInfoController {
     var deviceID: Int? = nil
     private var origin: Patient?
     var patientID: Int? { origin?.id }
-    var isUpdating: Bool = false
-    var isFailed: Bool = false
+    var state: PatientInfoStates = .idle
     var deviceIDState: DeviceIDState = .valid
     var isUpdated: Bool {
         guard let origin else { return false }
@@ -45,14 +53,17 @@ final class PatientInfoController {
     init() {}
     
     func initialize(id: Int, uid: UUID) async {
+        state = .fetching
         do {
             if let patient = try await patientRepository.get(filter: .init(uid: uid, id: id)) {
                 initialize(with: patient)
             } else {
                 logger.warning("No patient found with id: \(id)")
+                state = .error(.noPatient)
             }
         } catch {
             logger.error("Failure to get patient: \(error.localizedDescription)")
+            state = .error(nil)
         }
     }
     
@@ -67,6 +78,7 @@ final class PatientInfoController {
         heelTime = patient.heelTime
         deviceID = patient.deviceID
         checkDeviceID()
+        state = .loaded
     }
     
     func checkDeviceID() {
@@ -108,10 +120,7 @@ final class PatientInfoController {
     
     func update() async {
         guard let origin else { return }
-        defer {
-            isUpdating = false
-        }
-        isUpdating = true
+        state = .updating
         do {
             let updated = Patient(id: origin.id, createdAt: origin.createdAt, updatedAt: .now, uid: origin.uid, name: name, height: nil, weight: weight, occiputTime: occiputTime, scapulaTime: scapulaTime, elbowTime: elbowTime, hipTime: hipTime, heelTime: heelTime, deviceID: deviceID)
             try await patientRepository.upsert(updated)
@@ -120,8 +129,15 @@ final class PatientInfoController {
         } catch {
             logger.error("Fail to update patient: \(error.localizedDescription)")
             initialize(with: origin)
-            isFailed = true
+            state = .error(.updateFailed)
         }
         
+    }
+}
+
+extension PatientInfoController.PatientInfoStates {
+    var isUpdating: Bool {
+        if case .updating = self { return true }
+        return false
     }
 }
