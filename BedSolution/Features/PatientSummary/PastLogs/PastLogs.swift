@@ -164,7 +164,7 @@ struct PastLogs: View {
     
     @ViewBuilder
     private func columnContent(accumulatedPressure: Int) -> some View {
-        Text(TimeFormatter.formattedDuration(from: accumulatedPressure))
+        Text(TimeFormatter.formattedDuration(seconds: accumulatedPressure))
             .textStyle(theme.textTheme.bodyLarge)
             .frame(width: columnWidth, height: rowHeight)
             .backgroundColorSet(theme.colorTheme.surfaceContainer)

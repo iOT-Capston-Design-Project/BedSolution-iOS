@@ -10,18 +10,18 @@ import SwiftUI
 struct CurrentPatientState: View {
     @Environment(\.theme) private var theme
     @Environment(PatientInfoController.self) var patientInfo
-    @State private var controller = TodayDayLogController()
+    @State private var controller = TodayPatientLogController()
     @State private var selectedPostureLog: PostureLog?
     
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(alignment: .leading, spacing: 6) {
-                if false {
-                    PostureAlert(region: "엉덩뼈", onRecord: {})
+                if let log = controller.warnedPressureLog, controller.needPostureChange {
+                    PostureAlert(log: log)
                         .padding(EdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0))
                         .transition(.scale)
                 }
-                if let lastLog = controller.pressureLogs.last {
+                if let lastLog = controller.pressureLogs.first {
                     PatientStatusCard(
                         name: patientInfo.name,
                         occiputTime: patientInfo.occiputTime,
@@ -62,15 +62,17 @@ struct CurrentPatientState: View {
         .contentMargins(.horizontal, 12, for: .scrollContent)
         .contentMargins(.top, 10, for: .scrollContent)
         .scrollIndicators(.never)
+        .animation(.default, value: controller.needPostureChange)
+        .animation(.default, value: controller.warnedPressureLog)
         .sheet(item: $selectedPostureLog) { postureLog in
             PostureLogDetail(postureLog: postureLog)
                 .presentationDetents([.medium])
         }
         .onChange(of: patientInfo.deviceID) { _, deviceID in
-            Task { await controller.initialize(deviceID: deviceID) }
+            Task { await controller.fetch(deviceID: deviceID) }
         }
         .task {
-            await controller.initialize(deviceID: patientInfo.deviceID)
+            await controller.fetch(deviceID: patientInfo.deviceID)
         }
     }
 }

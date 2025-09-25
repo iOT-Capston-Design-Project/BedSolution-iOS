@@ -101,7 +101,7 @@ struct HumanConfig: View {
         HStack(spacing: 5) {
             Text(text)
             if let time {
-                Text(TimeFormatter.formattedDuration(from: time))
+                Text(TimeFormatter.formattedDuration(minutes: time))
             }
         }
         .textStyle(theme.textTheme.emphasizedLabelLarge)

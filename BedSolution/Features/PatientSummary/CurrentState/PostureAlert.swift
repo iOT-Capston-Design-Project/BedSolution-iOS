@@ -9,8 +9,8 @@ import SwiftUI
 
 struct PostureAlert: View {
     @Environment(\.theme) private var theme
-    var region: LocalizedStringResource
-    var onRecord: () -> Void
+    @Environment(PatientInfoController.self) private var patientInfo
+    var log: PressureLog
     
     var body: some View {
         HStack(spacing: 10) {
@@ -20,7 +20,7 @@ struct PostureAlert: View {
             VStack(alignment: .trailing, spacing: 10) {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
-                        Text("자세 변경 알림")
+                        Text("자세 변경 요청")
                             .textStyle(theme.textTheme.emphasizedTitleMedium)
                             .foregroundColorSet(theme.colorTheme.error)
                         Spacer()
@@ -28,21 +28,44 @@ struct PostureAlert: View {
                             .textStyle(theme.textTheme.labelMedium)
                             .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
                     }
-                    Text("\(region)에 지속적인 압력이 가해지고 있습니다.")
+                    Text(dagenrousPartsStr())
                         .textStyle(theme.textTheme.bodyLarge)
                 }
-                Button(action: onRecord) {
-                    Text("자세 변경 기록하기")
-                        .textStyle(theme.textTheme.emphasizedLabelLarge)
-                }
-                .buttonStyle(type: .small, option: .fiilled, primary: theme.colorTheme.error, onPrimary: theme.colorTheme.onError)
             }
         }
         .padding(EdgeInsets(top: 8, leading: 8, bottom: 10, trailing: 8))
         .backgroundColorSet(theme.colorTheme.surfaceContainer, in: RoundedRectangle(cornerRadius: 12))
     }
+    
+    private func dagenrousPartsStr() -> String {
+        var result: String = ""
+        if let occiputTime = patientInfo.occiputTime, log.occiput/60 > occiputTime {
+            result.append("후두부")
+        }
+        if let scapulaTime = patientInfo.scapulaTime, log.scapula/60 > scapulaTime {
+            if !result.isEmpty { result.append(", ") }
+            result.append("견갑")
+        }
+        if let hipTime = patientInfo.hipTime, log.hip/60 > hipTime {
+            if !result.isEmpty { result.append(", ") }
+            result.append("엉덩이")
+        }
+        if let elbowTime = patientInfo.elbowTime, log.elbow/60 > elbowTime {
+            if !result.isEmpty { result.append(", ") }
+            result.append("팔꿈치")
+        }
+        if let heelTime = patientInfo.heelTime, log.heel/60 > heelTime {
+            if !result.isEmpty { result.append(", ") }
+            result.append("발끝")
+        }
+        if !result.isEmpty {
+            result.append("에 지속적인 압력이 가해지고 있습니다.")
+        }
+        return result
+    }
 }
 
 #Preview {
-    PostureAlert(region: "엉덩뼈", onRecord: {})
+    PostureAlert(log: PressureLog())
+        .environment(PatientInfoController())
 }

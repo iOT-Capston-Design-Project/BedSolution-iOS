@@ -108,7 +108,7 @@ struct PressureInfo: View {
                 .foregroundColorSet(theme.colorTheme.onSurface)
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text(TimeFormatter.formattedDuration(from: Int(period/60)))
+                Text(TimeFormatter.formattedDuration(seconds: period))
                     .textStyle(theme.textTheme.labelLarge)
                     .foregroundColorSet(theme.colorTheme.onSurface)
                 VerticalProgressbar(color: color, progress: progress)

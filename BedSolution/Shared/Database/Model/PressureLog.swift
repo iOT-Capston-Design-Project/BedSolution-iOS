@@ -21,15 +21,15 @@ public enum PostureType: Int, Codable {
         case .UKNOWN:
             return "미확인"
         case .SITTING:
-            return "않은 자세"
+            return "앉은 자세"
         case .LEFT_SIDE:
             return "좌측와위"
         case .RIGHT_SIDE:
             return "우측와위"
         case .SUPINE:
-            return "앙와위"
+            return "정자세"
         case .PRONE:
-            return "복와위"
+            return "엎드림"
         }
     }
 }
@@ -44,6 +44,7 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
     public var hip: Int = 0
     public var dayID: Int = 0
     public var postureType: PostureType = .UKNOWN
+    public var needPostureChange: Bool = false
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -55,6 +56,7 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         case hip
         case dayID = "day_id"
         case postureType = "posture_type"
+        case needPostureChange = "posture_change_required"
     }
     
     public init(from decoder: Decoder) throws {
@@ -68,6 +70,7 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         self.hip = try container.decode(Int.self, forKey: .hip)
         self.dayID = try container.decode(Int.self, forKey: .dayID)
         self.postureType = try container.decodeIfPresent(PostureType.self, forKey: .postureType) ?? .UKNOWN
+        self.needPostureChange = try container.decode(Bool.self, forKey: .needPostureChange)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -81,6 +84,7 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         try container.encode(hip, forKey: .hip)
         try container.encode(dayID, forKey: .dayID)
         try container.encode(postureType, forKey: .postureType)
+        try container.encode(needPostureChange, forKey: .needPostureChange)
     }
     
     init() {}
@@ -97,12 +101,13 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
             self.hip = decoded.hip
             self.dayID = decoded.dayID
             self.postureType = decoded.postureType
+            self.needPostureChange = decoded.needPostureChange
         } catch {
             return nil
         }
     }
     
-    init(id: Int, createdAt: Date, occiput: Int, scapula: Int, elbow: Int, heel: Int, hip: Int, dayID: Int, postureType: PostureType = .UKNOWN) {
+    init(id: Int, createdAt: Date, occiput: Int, scapula: Int, elbow: Int, heel: Int, hip: Int, dayID: Int, postureType: PostureType = .UKNOWN, needPostureChange: Bool = false) {
         self.id = id
         self.createdAt = createdAt
         self.occiput = occiput
@@ -112,5 +117,6 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         self.hip = hip
         self.dayID = dayID
         self.postureType = postureType
+        self.needPostureChange = needPostureChange
     }
 }

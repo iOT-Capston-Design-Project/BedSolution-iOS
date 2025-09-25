@@ -297,7 +297,7 @@ struct PatientInfo: View {
         }) {
             Group {
                 if let time {
-                    Text(TimeFormatter.formattedDuration(from: time))
+                    Text(TimeFormatter.formattedDuration(minutes: time))
                 } else {
                     Text("설정하기")
                 }

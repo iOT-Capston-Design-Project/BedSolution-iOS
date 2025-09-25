@@ -11,7 +11,7 @@ struct PressureTimePicker: View {
     @Environment(\.theme) private var theme
     @Binding var time: Int?
     private let availableTimes = [
-        10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115
+        5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115
     ]
     
     var body: some View {
@@ -19,14 +19,14 @@ struct PressureTimePicker: View {
             Picker("", selection: $time) {
                 Text("기본 설정").tag(nil as Int?)
                 ForEach(availableTimes, id: \.self) {
-                    Text(TimeFormatter.formattedDuration(from: $0)).tag($0 as Int?)
+                    Text(TimeFormatter.formattedDuration(minutes: $0)).tag($0 as Int?)
                 }
             }
             .labelsHidden()
             .pickerStyle(.wheel)
             .frame(height: 150)
             if let time {
-                Text("\(TimeFormatter.formattedDuration(from: time)) 이상 압력 지속시 알림이 울립니다.")
+                Text("\(TimeFormatter.formattedDuration(minutes: time)) 이상 압력 지속시 알림이 울립니다.")
                     .textStyle(theme.textTheme.labelLarge)
                     .foregroundColorSet(theme.colorTheme.primary)
                     .contentTransition(.numericText(value: Double(time)))

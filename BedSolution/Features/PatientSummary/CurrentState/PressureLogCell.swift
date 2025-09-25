@@ -20,13 +20,13 @@ struct PressureLogCell: View {
             VStack(alignment: .leading) {
                 Group {
                     HStack(spacing: 5) {
-                        Text("뒤통수: \(TimeFormatter.formattedDuration(from: Int(log.occiput/60)))")
-                        Text("견갑골: \(TimeFormatter.formattedDuration(from: Int(log.scapula/60)))")
-                        Text("팔꿈치: \(TimeFormatter.formattedDuration(from: Int(log.elbow/60)))")
+                        Text("뒤통수: \(TimeFormatter.formattedDuration(seconds: log.occiput))")
+                        Text("견갑골: \(TimeFormatter.formattedDuration(seconds: log.scapula))")
+                        Text("팔꿈치: \(TimeFormatter.formattedDuration(seconds: log.elbow))")
                     }
                     HStack(spacing: 5) {
-                        Text("엉덩뼈: \(TimeFormatter.formattedDuration(from: Int(log.hip/60)))")
-                        Text("발꿈치: \(TimeFormatter.formattedDuration(from: Int(log.heel/60)))")
+                        Text("엉덩뼈: \(TimeFormatter.formattedDuration(seconds: log.hip))")
+                        Text("발꿈치: \(TimeFormatter.formattedDuration(seconds: log.heel))")
                     }
                 }
                 .textStyle(theme.textTheme.labelLarge)

@@ -162,7 +162,7 @@ struct PatientLogDetailView: View {
     
     @ViewBuilder
     private func columnContent(time: Int) -> some View {
-        Text(TimeFormatter.formattedDuration(from: time/60))
+        Text(TimeFormatter.formattedDuration(seconds: time))
             .textStyle(theme.textTheme.bodyLarge)
             .frame(width: columnWidth, height: rowHeight)
             .backgroundColorSet(theme.colorTheme.surfaceContainer)
