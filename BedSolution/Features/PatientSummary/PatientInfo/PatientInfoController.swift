@@ -105,13 +105,13 @@ final class PatientInfoController {
     
     private func subscribeDeviceNotification(originID: Int?, updatedID: Int?) async {
         do {
-            if let updatedID {
-                try await Messaging.messaging().subscribe(toTopic: String(updatedID))
-                logger.info("Subscribed to device topic: \(updatedID)")
-            }
             if let originID {
                 try await Messaging.messaging().unsubscribe(fromTopic: String(originID))
                 logger.info("Unsubscribed from device topic: \(originID)")
+            }
+            if let updatedID {
+                try await Messaging.messaging().subscribe(toTopic: String(updatedID))
+                logger.info("Subscribed to device topic: \(updatedID)")
             }
         } catch {
             logger.error("Fail to subscribe to device topic: \(error.localizedDescription)")
