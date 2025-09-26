@@ -39,24 +39,24 @@ struct PostureAlert: View {
     
     private func dagenrousPartsStr() -> String {
         var result: String = ""
-        if let occiputTime = patientInfo.occiputTime, log.occiput/60 > occiputTime {
-            result.append("후두부")
+        if let occiputTime = patientInfo.occiputTime, log.occiput/60 >= occiputTime {
+            result.append("뒤통수")
         }
-        if let scapulaTime = patientInfo.scapulaTime, log.scapula/60 > scapulaTime {
+        if let scapulaTime = patientInfo.scapulaTime, log.scapula/60 >= scapulaTime {
             if !result.isEmpty { result.append(", ") }
-            result.append("견갑")
+            result.append("견갑골")
         }
-        if let hipTime = patientInfo.hipTime, log.hip/60 > hipTime {
+        if let hipTime = patientInfo.hipTime, log.hip/60 >= hipTime {
             if !result.isEmpty { result.append(", ") }
-            result.append("엉덩이")
+            result.append("엉덩뼈")
         }
-        if let elbowTime = patientInfo.elbowTime, log.elbow/60 > elbowTime {
+        if let elbowTime = patientInfo.elbowTime, log.elbow/60 >= elbowTime {
             if !result.isEmpty { result.append(", ") }
             result.append("팔꿈치")
         }
-        if let heelTime = patientInfo.heelTime, log.heel/60 > heelTime {
+        if let heelTime = patientInfo.heelTime, log.heel/60 >= heelTime {
             if !result.isEmpty { result.append(", ") }
-            result.append("발끝")
+            result.append("발꿈치")
         }
         if !result.isEmpty {
             result.append("에 지속적인 압력이 가해지고 있습니다.")
