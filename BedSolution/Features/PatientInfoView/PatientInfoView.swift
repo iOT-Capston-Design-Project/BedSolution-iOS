@@ -29,6 +29,7 @@ struct PatientInfoView: View {
         )
       }
     }
+    .scrollIndicators(.never)
     .contentMargins(.horizontal, 10)
     .contentMargins(.top, 6)
     .scrollContentBackground(.hidden)
