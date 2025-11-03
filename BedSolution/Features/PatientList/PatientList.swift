@@ -8,28 +8,46 @@
 import SwiftUI
 import Logging
 
+private enum PatientListSheetTypes: Identifiable {
+  case addPatient
+  case showPatient(Patient)
+  
+  var id: Int {
+    switch self {
+    case .addPatient:
+      return -1
+    case .showPatient(let patient):
+      return patient.id
+    }
+  }
+}
+
 struct PatientList: View {
     @Environment(\.theme) private var theme
     @Environment(AuthService.self) private var auth
-    @Environment(PatientsController.self) private var patients
-    @State private var addPatient = false
-    @Binding var selection: Patient?
+    @State private var patients = PatientsController()
+  @State private var sheet: PatientListSheetTypes? = nil
     private let logger = Logger(label: "PatientList")
     
     var body: some View {
-        List(selection: $selection) {
+      NavigationStack {
+        List {
             ForEach(patients.patients) { patient in
-                PatientCell(patient: patient)
-                    .listRowBackground(RoundedRectangle(cornerRadius: 16).foregroundColorSet(theme.colorTheme.surfaceContainer))
-                    .tag(patient)
-                    .swipeActions(allowsFullSwipe: false) {
-                        Button(role: .destructive, action: {
-                            Task { await patients.delete(patient) }
-                        }) {
-                            Label("삭제", systemImage: "trash")
-                        }
-                        .tintColorSet(theme.colorTheme.error)
-                    }
+              PatientCell(patient: patient)
+                .onTapGesture {
+                  sheet = .showPatient(patient)
+                }
+                .listRowBackground(RoundedRectangle(cornerRadius: 16)
+                  .foregroundColorSet(theme.colorTheme.surfaceContainer))
+                .tag(patient)
+                .swipeActions(allowsFullSwipe: false) {
+                  Button(role: .destructive, action: {
+                      Task { await patients.delete(patient) }
+                  }) {
+                      Label("삭제", systemImage: "trash")
+                  }
+                  .tintColorSet(theme.colorTheme.error)
+                }
             }
         }
         .animation(.default, value: patients.patients)
@@ -45,11 +63,11 @@ struct PatientList: View {
         }
         .toolbar {
             ToolbarItem {
-                Button(action: { addPatient.toggle() }) {
+              Button(action: { sheet = .addPatient }) {
                     Label("환자 추가", systemImage: "plus")
                 }
             }
-            ToolbarItem {
+          ToolbarItem(placement: .cancellationAction) {
                 Menu {
                     Button(role: .destructive, action: {
                         Task { await auth.signout() }
@@ -62,15 +80,25 @@ struct PatientList: View {
             }
         }
         .navigationTitle(Text("환자 목록"))
-        .sheet(isPresented: $addPatient) {
-            NavigationStack {
-                PatientRegisterView()
-            }
-            .presentationDetents([.large])
-            .onDisappear {
-                Task { await refresh() }
-            }
+      }
+      .task {
+        guard let uid = auth.uid else { return }
+        await patients.refresh(uid: uid)
+      }
+      .sheet(item: $sheet) { sheet in
+        switch sheet {
+        case .addPatient:
+          NavigationStack {
+              PatientRegisterView()
+          }
+          .presentationDetents([.large])
+          .onDisappear {
+              Task { await refresh() }
+          }
+        case .showPatient(let patient):
+          PatientDetailView(patient: patient)
         }
+      }
     }
     
     private func refresh() async {
@@ -80,9 +108,8 @@ struct PatientList: View {
 }
 
 #Preview {
-    @Previewable @State var selected: Patient?
     NavigationStack {
-        PatientList(selection: $selected)
+        PatientList()
             .environment(AuthService())
     }
     .environment(PatientsController())

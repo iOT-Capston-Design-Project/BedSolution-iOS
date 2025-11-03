@@ -13,44 +13,46 @@ struct PatientStatusView: View {
   var patient: Patient
   
   var body: some View {
-    ScrollView(.vertical) {
-      LazyVStack {
-        PatientBodyPressureWidget()
-        
-        if !vm.pressureLogs.isEmpty {
-          // 오늘 자세 변경 기록
-          Section {
-            ScrollView(.horizontal) {
-              LazyHStack {
-                ForEach(vm.pressureLogs) { pressureLog in
-                  PostureLogWidget(pressureLog: pressureLog)
-                    .containerRelativeFrame(.horizontal, count: 2, spacing: 0)
+    NavigationStack {
+      ScrollView(.vertical) {
+        LazyVStack {
+          PatientBodyPressureWidget()
+          
+          if !vm.pressureLogs.isEmpty {
+            // 오늘 자세 변경 기록
+            Section {
+              ScrollView(.horizontal) {
+                LazyHStack {
+                  ForEach(vm.pressureLogs) { pressureLog in
+                    PostureLogWidget(pressureLog: pressureLog)
+                      .containerRelativeFrame(.horizontal, count: 2, spacing: 0)
+                  }
                 }
+                .scrollTargetLayout()
               }
-              .scrollTargetLayout()
+              .scrollTargetBehavior(.viewAligned)
+              .scrollIndicators(.never)
+            } header: {
+              Text("오늘 자세 변경 기록")
+                .textStyle(theme.textTheme.emphasizedTitleMedium)
+                .foregroundColorSet(theme.colorTheme.onSurface)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(EdgeInsets(top: 8, leading: 0, bottom: 3, trailing: 0))
             }
-            .scrollTargetBehavior(.viewAligned)
-            .scrollIndicators(.never)
-          } header: {
-            Text("오늘 자세 변경 기록")
-              .textStyle(theme.textTheme.emphasizedTitleMedium)
-              .foregroundColorSet(theme.colorTheme.onSurface)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .padding(EdgeInsets(top: 8, leading: 0, bottom: 3, trailing: 0))
           }
         }
+        .scrollTargetLayout()
       }
-      .scrollTargetLayout()
+      .scrollTargetBehavior(.viewAligned)
+      .scrollIndicators(.never)
+      .contentMargins(.horizontal, 10)
+      .contentMargins(.top, 6)
+      .scrollContentBackground(.hidden)
+      .backgroundColorSet(theme.colorTheme.surface)
+      .navigationTitle(Text("오늘 기록"))
+      .navigationSubtitle(Text(vm.name))
+      .navigationBarTitleDisplayMode(.inline)
     }
-    .scrollTargetBehavior(.viewAligned)
-    .scrollIndicators(.never)
-    .contentMargins(.horizontal, 10)
-    .contentMargins(.top, 6)
-    .scrollContentBackground(.hidden)
-    .backgroundColorSet(theme.colorTheme.surface)
-    .navigationTitle(Text("오늘 기록"))
-    .navigationSubtitle(Text(vm.name))
-    .navigationBarTitleDisplayMode(.inline)
     .environment(vm)
     .task {
       await vm.initialize(patientID: patient.id, uid: patient.uid)
@@ -62,14 +64,12 @@ struct PatientStatusView: View {
 }
 
 #Preview {
-  NavigationStack {
-    PatientStatusView(
-      patient: Patient(
-        id: 2625083234860015468, createdAt: .now,
-        uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
-        name: "",
-        occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil
-      )
+  PatientStatusView(
+    patient: Patient(
+      id: 2625083234860015468, createdAt: .now,
+      uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
+      name: "",
+      occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil
     )
-  }
+  )
 }

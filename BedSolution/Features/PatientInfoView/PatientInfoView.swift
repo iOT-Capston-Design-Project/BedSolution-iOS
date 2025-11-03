@@ -14,49 +14,51 @@ struct PatientInfoView: View {
   var patient: Patient
   
   var body: some View {
-    ScrollView {
-      LazyVStack {
-        PatientInfoWidget(name: $vm.name, weight: $vm.weight)
-        LinkedDeviceWidget(deviceID: $vm.deviceID)
-        CriticalThresholdWidget(
-          occiputTime: $vm.occiputTime,
-          scapulaTime: $vm.scapulaTime,
-          rightElbowTime: $vm.rightElbowTime,
-          leftElbowTime: $vm.leftElbowTime,
-          hipTime: $vm.hipTime,
-          rightHeelTime: $vm.rightHeelTime,
-          leftHeelTime: $vm.leftHeelTime
-        )
-      }
-    }
-    .scrollIndicators(.never)
-    .contentMargins(.horizontal, 10)
-    .contentMargins(.top, 6)
-    .scrollContentBackground(.hidden)
-    .backgroundColorSet(theme.colorTheme.surface)
-    .navigationTitle(Text(vm.name))
-    .alert(
-      isPresented: $errorAlert,
-      error: vm.error,
-      actions: { _ in },
-      message: { error in
-        Text(errorMessage(error: error))
-      }
-    )
-    .toolbar {
-      ToolbarItem {
-        Button(action: toggleEditMode) {
-          if vm.isUpdating {
-            ProgressView()
-              .progressViewStyle(.circular)
-          } else {
-            Label(vm.isEditing ? "완료" : "편집", systemImage: vm.isEditing ? "checkmark" : "pencil")
-          }
+    NavigationStack {
+      ScrollView {
+        LazyVStack {
+          PatientInfoWidget(name: $vm.name, weight: $vm.weight)
+          LinkedDeviceWidget(deviceID: $vm.deviceID)
+          CriticalThresholdWidget(
+            occiputTime: $vm.occiputTime,
+            scapulaTime: $vm.scapulaTime,
+            rightElbowTime: $vm.rightElbowTime,
+            leftElbowTime: $vm.leftElbowTime,
+            hipTime: $vm.hipTime,
+            rightHeelTime: $vm.rightHeelTime,
+            leftHeelTime: $vm.leftHeelTime
+          )
         }
-        .tintColorSet(vm.isEditing ? theme.colorTheme.primary: theme.colorTheme.onSurface)
       }
+      .scrollIndicators(.never)
+      .contentMargins(.horizontal, 10)
+      .contentMargins(.top, 6)
+      .scrollContentBackground(.hidden)
+      .backgroundColorSet(theme.colorTheme.surface)
+      .navigationTitle(Text(vm.name))
+      .alert(
+        isPresented: $errorAlert,
+        error: vm.error,
+        actions: { _ in },
+        message: { error in
+          Text(errorMessage(error: error))
+        }
+      )
+      .toolbar {
+        ToolbarItem {
+          Button(action: toggleEditMode) {
+            if vm.isUpdating {
+              ProgressView()
+                .progressViewStyle(.circular)
+            } else {
+              Label(vm.isEditing ? "완료" : "편집", systemImage: vm.isEditing ? "checkmark" : "pencil")
+            }
+          }
+          .tintColorSet(vm.isEditing ? theme.colorTheme.primary: theme.colorTheme.onSurface)
+        }
+      }
+      .toolbarTitleDisplayMode(.inline)
     }
-    .toolbarTitleDisplayMode(.inline)
     .environment(vm)
     .onChange(of: vm.error) { _, error in
         errorAlert = error != nil
@@ -97,14 +99,12 @@ struct PatientInfoView: View {
 }
 
 #Preview {
-  NavigationStack {
-    PatientInfoView(
-      patient: Patient(
-        id: 2625083234860015468, createdAt: .now,
-        uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
-        name: "",
-        occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil
-      )
+  PatientInfoView(
+    patient: Patient(
+      id: 2625083234860015468, createdAt: .now,
+      uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
+      name: "",
+      occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil
     )
-  }
+  )
 }
