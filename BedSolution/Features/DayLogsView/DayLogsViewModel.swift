@@ -27,13 +27,21 @@ class DayLogsViewModel {
   private var fetchDayLogsTask: Task<Void, Never>?
   private let logger = Logger(label: "DayLogsViewModel")
   
+  deinit {
+    fetchDayLogsTask?.cancel()
+  }
+  
   func fetchDayLogs(patient: Patient) async {
     fetchDayLogsTask?.cancel()
+    error = nil
+    
     fetchDayLogsTask = Task { [weak self] in
       guard let self else { return }
       
       do {
-        let patient = try await self.patientRepo.get(filter: .init(uid: patient.uid, id: patient.id))
+        let patient = try await self.patientRepo.get(
+          filter: .init(uid: patient.uid, id: patient.id)
+        )
         guard let patient else { throw DayLogsVMError.noPateint }
         guard let deviceID = patient.deviceID else { throw DayLogsVMError.noDeviceID }
         self.dayLogs = try await self.dayLogRepo.list(

@@ -49,7 +49,11 @@ struct DayLogsView: View {
                 }
             }
             .frame(width: columnWidth)
-            .backgroundColorSet(rightX > 0 ? theme.colorTheme.surfaceContainerHigh:theme.colorTheme.surfaceContainer)
+            .backgroundColorSet(
+              rightX > 0 ?
+              theme.colorTheme.surfaceContainerHigh:
+              theme.colorTheme.surfaceContainer
+            )
             .animation(.easeOut, value: rightX)
             
             columnDivider
@@ -120,6 +124,30 @@ struct DayLogsView: View {
                 .frame(height: 1)
                 .foregroundColorSet(theme.colorTheme.outline)
         }
+        
+        if let vmError = vm.error {
+          VStack(spacing: 15) {
+            Image(systemName: "exclamationmark.triangle.fill")
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 35, height: 35)
+            Text(errorMessage(vmError))
+              .textStyle(theme.textTheme.emphasizedLabelLarge)
+          }
+          .foregroundColorSet(theme.colorTheme.error)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if vm.dayLogs.isEmpty {
+          VStack(spacing: 15) {
+            Image(systemName: "tray")
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 35, height: 35)
+            Text("압력 기록이 없어요.")
+              .textStyle(theme.textTheme.emphasizedLabelLarge)
+          }
+          .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
       }
       .backgroundColorSet(theme.colorTheme.surface)
       .navigationTitle(Text("과거 기록"))
@@ -130,6 +158,17 @@ struct DayLogsView: View {
     }
     .task {
       await vm.fetchDayLogs(patient: patient)
+    }
+  }
+  
+  private func errorMessage(_ error: DayLogsVMError) -> LocalizedStringResource {
+    switch error {
+    case .noPateint:
+      return "환자 정보가 없어요."
+    case .noDeviceID:
+      return "연결된 장치를 찾을 수 없어요."
+    case .internalError:
+      return "알 수 없는 오류가 발생했어요."
     }
   }
 }
