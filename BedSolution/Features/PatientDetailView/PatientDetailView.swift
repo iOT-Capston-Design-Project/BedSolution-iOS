@@ -17,7 +17,7 @@ struct PatientDetailView: View {
         PatientStatusView(patient: patient)
       }
       Tab("과거 기록", systemImage: "list.bullet.indent") {
-        
+        DayLogsView(patient: patient)
       }
       Tab("압력 히트맵", systemImage: "chart.bar.xaxis.ascending") {
         

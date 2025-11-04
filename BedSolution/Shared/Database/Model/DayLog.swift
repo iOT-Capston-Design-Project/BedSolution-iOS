@@ -8,7 +8,7 @@
 import Foundation
 import Supabase
 
-nonisolated public struct DayLog: Codable, Identifiable {
+nonisolated public struct DayLog: Codable, Identifiable, Hashable {
     public var id: Int = 0
     public var day: Date = .now
     public var accumulatedOcciput: Int = 0
