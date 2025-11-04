@@ -20,7 +20,7 @@ struct PatientDetailView: View {
         DayLogsView(patient: patient)
       }
       Tab("압력 히트맵", systemImage: "chart.bar.xaxis.ascending") {
-        
+        HeatmapView(patient: patient)
       }
       
       Tab("환자 정보", systemImage: "person", role: .search) {

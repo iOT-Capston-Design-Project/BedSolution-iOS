@@ -101,6 +101,10 @@ class PatientStatusViewModel {
   private var pullingTask: Task<Void, Never>?
   private let logger = Logger(label: "PatientStatusViewModel")
   
+  deinit {
+    cancelPullingTask()
+  }
+  
   private func fetchPatient(patientID: Int, uid: UUID) async {
     do {
       let patient = try await patientRepo.get(filter: .init(uid: uid, id: patientID))
@@ -125,6 +129,7 @@ class PatientStatusViewModel {
   
   func cancelPullingTask() {
     pullingTask?.cancel()
+    pullingTask = nil
   }
   
   private func startPullingTask() {
