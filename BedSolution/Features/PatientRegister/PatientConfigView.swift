@@ -22,17 +22,21 @@ struct PatientConfigView: View {
             VStack(spacing: 25) {
                 Text("주의해야 할 부위를 탭하여 선택해주세요")
                     .textStyle(theme.textTheme.emphasizedTitleMedium)
-                HumanConfig(
-                    occiputTime: $occiputTime,
-                    scapulaTime: $scapulaTime,
-                    elbowTime: $elbowTime,
-                    hipTime: $hipTime,
-                    heelTime: $heelTime
+                    .foregroundColorSet(theme.colorTheme.onSurface)
+                CriticalPartConfigWidget(
+                  occiputTime: $occiputTime,
+                  scapulaTime: $scapulaTime,
+                  rightElbowTime: $elbowTime,
+                  leftElbowTime: $elbowTime,
+                  hipTime: $hipTime,
+                  rightHeelTime: $heelTime,
+                  leftHeelTime: $heelTime
                 )
-                Text("부위별 최대 압력 시간은 선택 후,\n환자 설정에서 수정할 수 있습니다.")
+                Text("선택된 부위는 더 짧은 임계시간으로 설정됩니다.")
                     .frame(width: 250)
                     .multilineTextAlignment(.center)
                     .textStyle(theme.textTheme.bodyLarge)
+                    .foregroundColorSet(theme.colorTheme.onSurfaceVarient)
             }
             Spacer()
             Button(action: onNext) {
