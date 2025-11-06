@@ -49,6 +49,13 @@ class DayLogDetailViewModel {
         guard let day else { throw DayLogDetailVMError.noDayLog }
         let logs = try await pressureLogRepo.list(filter: .init(dayID: day.id), limit: nil)
         self.dayLog = day
+        self.occiputTime = day.totalOcciputTime
+        self.scapulaTime = day.totalScapulaTime
+        self.rightElbowTime = day.totalRightElbowTime
+        self.leftElbowTime = day.totalLeftElbowTime
+        self.rightHeeelTime = day.totalRightHeelTime
+        self.leftHeelTime = day.totalLeftHeelTime
+        self.hipTime = day.totalHipTime
         self.pressureLogs = logs
       } catch {
         if let vmError = error as? DayLogDetailVMError {
