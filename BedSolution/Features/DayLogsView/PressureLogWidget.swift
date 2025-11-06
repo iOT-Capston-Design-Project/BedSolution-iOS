@@ -9,12 +9,19 @@ import SwiftUI
 
 struct PressureLogWidget: View {
   @Environment(\.theme) private var theme
+  static private var timeFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "HH:mm:ss"
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    return formatter
+  }()
   var pressureLog: PressureLog
   
   var body: some View {
     VStack(spacing: 0) {
       HStack {
-        Text(pressureLog.createdAt, format: .dateTime.hour().minute().second())
+        Text(PressureLogWidget.timeFormatter.string(from: pressureLog.createdAt))
           .textStyle(theme.textTheme.emphasizedTitleMedium)
           .foregroundColorSet(theme.colorTheme.onSurface)
         Spacer()
