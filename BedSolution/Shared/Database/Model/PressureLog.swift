@@ -15,6 +15,8 @@ public enum PostureType: Int, Codable {
     case RIGHT_SIDE = 3
     case SUPINE = 4
     case PRONE = 5
+    case SUPINE_LEFT = 6
+    case SUPINE_RIGHT = 7
     
     var title: LocalizedStringResource {
         switch self {
@@ -30,6 +32,10 @@ public enum PostureType: Int, Codable {
             return "정자세"
         case .PRONE:
             return "엎드림"
+        case .SUPINE_LEFT:
+            return "정자세 (좌)"
+        case .SUPINE_RIGHT:
+            return "정자세 (우)"
         }
     }
 }
