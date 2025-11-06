@@ -14,11 +14,13 @@ struct PatientRegisteringView: View {
     @State private var visibleInfo = [PatientData]()
     var name: String = ""
     var weight: Int = 15
-    var occiputTime: Int?
-    var scapulaTime: Int?
-    var elbowTime: Int?
-    var hipTime: Int?
-    var heelTime: Int?
+    var occiputThreshold: Int?
+    var scapulaThreshold: Int?
+    var rightElbowThreshold: Int?
+    var leftElbowThreshold: Int?
+    var hipThreshold: Int?
+    var rightHeelThreshold: Int?
+    var leftHeelThreshold: Int?
     var onRegistering: Bool
     var onStart: () -> Void
     
@@ -130,19 +132,19 @@ struct PatientRegisteringView: View {
         if weight > 0 {
             result.append(PatientData(id: 1, title: "\(weight) kg", icon: "scalemass.fill"))
         }
-        if occiputTime != nil {
+        if occiputThreshold != nil {
             result.append(PatientData(id: 2, title: "뒤통수", icon: "exclamationmark.triangle.fill"))
         }
-        if scapulaTime != nil {
+        if scapulaThreshold != nil {
             result.append(PatientData(id: 3, title: "견갑골", icon: "exclamationmark.triangle.fill"))
         }
-        if hipTime != nil {
+        if hipThreshold != nil {
             result.append(PatientData(id: 4, title: "엉덩이", icon: "exclamationmark.triangle.fill"))
         }
-        if heelTime != nil {
+        if rightHeelThreshold != nil || leftHeelThreshold != nil {
             result.append(PatientData(id: 5, title: "발꿈치", icon: "exclamationmark.triangle.fill"))
         }
-        if elbowTime != nil {
+        if rightElbowThreshold != nil || leftElbowThreshold != nil {
             result.append(PatientData(id: 6, title: "팔꿈치", icon: "exclamationmark.triangle.fill"))
         }
         self.patientInfo = result
@@ -154,10 +156,6 @@ struct PatientRegisteringView: View {
     @Previewable @State var onRegistering = true
     PatientRegisteringView(
         name: "Lee Jaeho",
-        weight: 74,
-        occiputTime: 40,
-        hipTime: 30,
-        heelTime: 10,
         onRegistering: onRegistering,
         onStart: {}
     )

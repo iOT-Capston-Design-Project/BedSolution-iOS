@@ -56,7 +56,14 @@ class PatientInfoViewModel {
   var isUpdated: Bool {
     guard let origin else { return false }
     return origin.name != name || origin.weight != weight ||
-           origin.occiputTime != occiputTime || origin.deviceID != deviceID // TODO: 변경된 속성 적용하기
+    origin.occiputThreshold != occiputTime ||
+    origin.scapulaThreshold != scapulaTime ||
+    origin.rightElbowThreshold != rightElbowTime ||
+    origin.leftElbowThreshold != leftElbowTime ||
+    origin.hipThreshold != hipTime ||
+    origin.rightHeelThreshold != rightHeelTime ||
+    origin.leftHeelThreshold != leftHeelTime ||
+    origin.deviceID != deviceID
   }
   /// 업데이트 플래그
   private(set) var isUpdating: Bool = false
@@ -92,13 +99,13 @@ class PatientInfoViewModel {
     self.origin = patient
     self.name = patient.name
     self.weight = patient.weight
-    self.occiputTime = patient.occiputTime
-    self.scapulaTime = patient.scapulaTime
-    self.rightElbowTime = patient.elbowTime
-    self.leftElbowTime = patient.elbowTime
-    self.hipTime = patient.hipTime
-    self.rightHeelTime = patient.heelTime
-    self.leftHeelTime = patient.heelTime
+    self.occiputTime = patient.occiputThreshold
+    self.scapulaTime = patient.scapulaThreshold
+    self.rightElbowTime = patient.rightElbowThreshold
+    self.leftElbowTime = patient.leftElbowThreshold
+    self.hipTime = patient.hipThreshold
+    self.rightHeelTime = patient.rightHeelThreshold
+    self.leftHeelTime = patient.leftHeelThreshold
     self.deviceID = patient.deviceID
   }
   
@@ -137,10 +144,19 @@ class PatientInfoViewModel {
     guard let origin else { return nil }
     do {
       let updated = Patient(
-        id: origin.id, createdAt: origin.createdAt, updatedAt: .now,
-        uid: origin.uid, name: name, height: nil, weight: weight,
-        occiputTime: occiputTime, scapulaTime: scapulaTime, elbowTime: rightElbowTime,
-        hipTime: hipTime, heelTime: rightHeelTime, deviceID: deviceID
+        id: origin.id,
+        createdAt: origin.createdAt, updatedAt: .now,
+        uid: origin.uid,
+        name: name,
+        height: nil, weight: weight,
+        occiputThreshold: occiputTime,
+        scapulaThreshold: scapulaTime,
+        rightElbowThreshold: rightElbowTime,
+        leftElbowThreshold: leftElbowTime,
+        hipThreshold: hipTime,
+        rightHeelThreshold: rightHeelTime,
+        leftHeelThreshold: leftHeelTime,
+        deviceID: deviceID
       )
       try await patientRepo.upsert(updated)
       return updated

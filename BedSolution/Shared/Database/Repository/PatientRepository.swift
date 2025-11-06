@@ -25,11 +25,13 @@ final class PatientRepository: RWRepository {
         let name: String
         let height: Float?
         let weight: Float?
-        let occiputTime: Int?
-        let scapulaTime: Int?
-        let elbowTime: Int?
-        let hipTime: Int?
-        let heelTime: Int?
+        let occiputThreshold: Int?
+        let scapulaThreshold: Int?
+        let rightElbowThreshold: Int?
+        let leftElbowThreshold: Int?
+        let hipThreshold: Int?
+        let rightHeelThreshold: Int?
+        let leftHeelThreshold: Int?
         let deviceID: Int?
         
         enum CodingKeys: String, CodingKey {
@@ -40,11 +42,13 @@ final class PatientRepository: RWRepository {
             case name
             case height
             case weight
-            case occiputTime = "occiput_time"
-            case scapulaTime = "scapula_time"
-            case elbowTime = "elbow_time"
-            case hipTime = "hip_time"
-            case heelTime = "heel_time"
+            case occiputThreshold = "occiput_threshold"
+            case scapulaThreshold = "scapula_threshold"
+            case rightElbowThreshold = "relbow_threshold"
+            case leftElbowThreshold = "lelbow_threshold"
+            case hipThreshold = "hip_threshold"
+            case rightHeelThreshold = "rheel_threshold"
+            case leftHeelThreshold = "lheel_threshold"
             case deviceID = "device_id"
         }
         
@@ -57,11 +61,13 @@ final class PatientRepository: RWRepository {
             try container.encode(name, forKey: .name)
             try container.encodeIfPresent(height, forKey: .height)
             try container.encodeIfPresent(weight, forKey: .weight)
-            try container.encodeIfPresent(occiputTime, forKey: .occiputTime)
-            try container.encodeIfPresent(scapulaTime, forKey: .scapulaTime)
-            try container.encodeIfPresent(elbowTime, forKey: .elbowTime)
-            try container.encodeIfPresent(hipTime, forKey: .hipTime)
-            try container.encodeIfPresent(heelTime, forKey: .heelTime)
+            try container.encodeIfPresent(occiputThreshold, forKey: .occiputThreshold)
+            try container.encodeIfPresent(scapulaThreshold, forKey: .scapulaThreshold)
+            try container.encodeIfPresent(rightElbowThreshold, forKey: .rightElbowThreshold)
+            try container.encodeIfPresent(leftElbowThreshold, forKey: .leftElbowThreshold)
+            try container.encodeIfPresent(hipThreshold, forKey: .hipThreshold)
+            try container.encodeIfPresent(rightHeelThreshold, forKey: .rightHeelThreshold)
+            try container.encodeIfPresent(leftHeelThreshold, forKey: .leftHeelThreshold)
             try container.encodeIfPresent(deviceID, forKey: .deviceID)
         }
         
@@ -73,11 +79,13 @@ final class PatientRepository: RWRepository {
             self.name = origin.name
             self.height = origin.height
             self.weight = origin.weight
-            self.occiputTime = origin.occiputTime
-            self.scapulaTime = origin.scapulaTime
-            self.elbowTime = origin.elbowTime
-            self.hipTime = origin.hipTime
-            self.heelTime = origin.heelTime
+            self.occiputThreshold = origin.occiputThreshold
+            self.scapulaThreshold = origin.scapulaThreshold
+            self.rightElbowThreshold = origin.rightElbowThreshold
+            self.leftElbowThreshold = origin.leftElbowThreshold
+            self.hipThreshold = origin.hipThreshold
+            self.rightHeelThreshold = origin.rightHeelThreshold
+            self.leftHeelThreshold = origin.leftHeelThreshold
             self.deviceID = origin.deviceID
         }
     }
@@ -163,3 +171,4 @@ final class PatientRepository: RWRepository {
         return builder
     }
 }
+

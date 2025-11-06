@@ -41,11 +41,13 @@ enum PatientRegisterStep: CaseIterable {
 class PatientRegisterController {
     var name: String = ""
     var weight: Int = 15
-    var occiputTime: Int? = nil
-    var scapulaTime: Int? = nil
-    var elbowTime: Int? = nil
-    var hipTime: Int? = nil
-    var heelTime: Int? = nil
+    var occipuThresold: Int? = nil
+    var scapulThreshold: Int? = nil
+    var rightElbowThreshold: Int? = nil
+    var leftElbowThreshold: Int? = nil
+    var hipThreshold: Int? = nil
+    var rightHeelThreshold: Int? = nil
+    var leftHeelThreshold: Int? = nil
     var isFailed: Bool = false
     private(set) var currentStep: PatientRegisterStep = .name
     var dismissEnabled: Bool { currentStep != .registering }
@@ -94,13 +96,20 @@ class PatientRegisterController {
             }
             do {
                 try await repo.insert(
-                    Patient(
-                        id: nil, createdAt: .now, updatedAt: nil, uid: uid,
-                        name: name, height: nil, weight: Float(weight),
-                        occiputTime: occiputTime, scapulaTime: scapulaTime,
-                        elbowTime: elbowTime, hipTime: hipTime, heelTime: heelTime,
-                        deviceID: nil
-                    )
+                  Patient(
+                    id: nil,
+                    createdAt: .now, updatedAt: nil,
+                    uid: uid, name: name,
+                    height: nil, weight: Float(weight),
+                    occiputThreshold: occipuThresold,
+                    scapulaThreshold: scapulThreshold,
+                    rightElbowThreshold: rightElbowThreshold,
+                    leftElbowThreshold: leftElbowThreshold,
+                    hipThreshold: hipThreshold,
+                    rightHeelThreshold: rightHeelThreshold,
+                    leftHeelThreshold: leftHeelThreshold,
+                    deviceID: nil
+                  )
                 )
             } catch {
                 isFailed = true

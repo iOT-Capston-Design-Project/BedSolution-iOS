@@ -16,7 +16,12 @@ struct PatientStatusView: View {
     NavigationStack {
       ScrollView(.vertical) {
         LazyVStack {
+          if vm.isPostureChangeRequired {
+            PostureChangeWidget()
+              .transition(.scale)
+          }
           PatientBodyPressureWidget()
+            .animation(.default, value: vm.dayLog)
           
           if !vm.pressureLogs.isEmpty {
             // 오늘 자세 변경 기록
@@ -46,16 +51,17 @@ struct PatientStatusView: View {
       .scrollTargetBehavior(.viewAligned)
       .scrollIndicators(.never)
       .contentMargins(.horizontal, 10)
-      .contentMargins(.top, 6)
+      .contentMargins(.vertical, 6)
       .scrollContentBackground(.hidden)
       .backgroundColorSet(theme.colorTheme.surface)
       .navigationTitle(Text("오늘 기록"))
       .navigationSubtitle(Text(vm.name))
       .navigationBarTitleDisplayMode(.inline)
+      .animation(.default, value: vm.isPostureChangeRequired)
     }
     .environment(vm)
     .task {
-      await vm.initialize(patientID: patient.id, uid: patient.uid)
+      await vm.initialize(patient: patient)
     }
     .onDisappear {
       vm.cancelPullingTask()
@@ -69,7 +75,13 @@ struct PatientStatusView: View {
       id: 2625083234860015468, createdAt: .now,
       uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
       name: "",
-      occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil
+      occiputThreshold: nil,
+      scapulaThreshold: nil,
+      rightElbowThreshold: nil,
+      leftElbowThreshold: nil,
+      hipThreshold: nil,
+      rightHeelThreshold: nil,
+      leftHeelThreshold: nil
     )
   )
 }

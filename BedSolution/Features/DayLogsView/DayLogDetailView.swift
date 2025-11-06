@@ -37,7 +37,7 @@ struct DayLogDetailView: View {
     .scrollTargetBehavior(.viewAligned)
     .scrollIndicators(.never)
     .contentMargins(.horizontal, 10)
-    .contentMargins(.top, 6)
+    .contentMargins(.vertical, 6)
     .navigationTitle(Text(vm.day, format: .dateTime.year().month().day()))
     .navigationBarTitleDisplayMode(.inline)
     .environment(vm)

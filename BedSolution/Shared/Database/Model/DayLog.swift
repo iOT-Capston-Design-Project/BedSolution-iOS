@@ -11,21 +11,25 @@ import Supabase
 nonisolated public struct DayLog: Codable, Identifiable, Hashable {
     public var id: Int = 0
     public var day: Date = .now
-    public var accumulatedOcciput: Int = 0
-    public var accumulatedScapula: Int = 0
-    public var accumulatedElbow: Int = 0
-    public var accumulatedHip: Int = 0
-    public var accumulatedHeel: Int = 0
+    public var totalOcciputTime: Int = 0
+    public var totalScapulaTime: Int = 0
+    public var totalRightElbowTime: Int = 0
+    public var totalLeftElbowTime: Int = 0
+    public var totalHipTime: Int = 0
+    public var totalRightHeelTime: Int = 0
+    public var totalLeftHeelTime: Int = 0
     public var deviceID: Int = 0
     
     enum CodingKeys: String, CodingKey {
         case id
         case day
-        case accumulatedOcciput = "accumulated_occiput"
-        case accumulatedScapula = "accumulated_scapula"
-        case accumulatedElbow = "accumulated_elbow"
-        case accumulatedHip = "accumulated_hip"
-        case accumulatedHeel = "accumulated_heel"
+        case totalOcciputTime = "total_occiput"
+        case totalScapulaTime = "total_scapula"
+        case totalRightElbowTime = "total_relbow"
+        case totalLeftElbowTime = "total_lelbow"
+        case totalHipTime = "total_hip"
+        case totalRightHeelTime = "total_rheel"
+        case totalLeftHeelTime = "total_lheel"
         case deviceID = "device_id"
     }
     
@@ -43,11 +47,13 @@ nonisolated public struct DayLog: Codable, Identifiable, Hashable {
             // Fallback to decoder's strategy
             self.day = try container.decode(Date.self, forKey: .day)
         }
-        self.accumulatedOcciput = try container.decode(Int.self, forKey: .accumulatedOcciput)
-        self.accumulatedScapula = try container.decode(Int.self, forKey: .accumulatedScapula)
-        self.accumulatedElbow = try container.decode(Int.self, forKey: .accumulatedElbow)
-        self.accumulatedHip = try container.decode(Int.self, forKey: .accumulatedHip)
-        self.accumulatedHeel = try container.decode(Int.self, forKey: .accumulatedHeel)
+        self.totalOcciputTime = try container.decode(Int.self, forKey: .totalOcciputTime)
+        self.totalScapulaTime = try container.decode(Int.self, forKey: .totalScapulaTime)
+        self.totalRightElbowTime = try container.decode(Int.self, forKey: .totalRightElbowTime)
+        self.totalLeftElbowTime = try container.decode(Int.self, forKey: .totalLeftElbowTime)
+        self.totalHipTime = try container.decode(Int.self, forKey: .totalHipTime)
+        self.totalRightHeelTime = try container.decode(Int.self, forKey: .totalRightHeelTime)
+        self.totalLeftHeelTime = try container.decode(Int.self, forKey: .totalLeftHeelTime)
         self.deviceID = try container.decode(Int.self, forKey: .deviceID)
     }
     
@@ -57,11 +63,13 @@ nonisolated public struct DayLog: Codable, Identifiable, Hashable {
         // Encode as date-only string (server baseline UTC)
         let dayStr = SupabaseService.shared.formatDateOnly(day)
         try container.encode(dayStr, forKey: .day)
-        try container.encode(accumulatedOcciput, forKey: .accumulatedOcciput)
-        try container.encode(accumulatedScapula, forKey: .accumulatedScapula)
-        try container.encode(accumulatedElbow, forKey: .accumulatedElbow)
-        try container.encode(accumulatedHip, forKey: .accumulatedHip)
-        try container.encode(accumulatedHeel, forKey: .accumulatedHeel)
+        try container.encode(totalOcciputTime, forKey: .totalOcciputTime)
+        try container.encode(totalScapulaTime, forKey: .totalScapulaTime)
+        try container.encode(totalRightElbowTime, forKey: .totalRightElbowTime)
+        try container.encode(totalLeftElbowTime, forKey: .totalLeftElbowTime)
+        try container.encode(totalHipTime, forKey: .totalHipTime)
+        try container.encode(totalRightHeelTime, forKey: .totalRightHeelTime)
+        try container.encode(totalLeftHeelTime, forKey: .totalLeftHeelTime)
         try container.encode(deviceID, forKey: .deviceID)
     }
     
@@ -70,20 +78,24 @@ nonisolated public struct DayLog: Codable, Identifiable, Hashable {
     init(
         id: Int,
         day: Date,
-        accumulatedOcciput: Int,
-        accumulatedScapula: Int,
-        accumulatedElbow: Int,
-        accumulatedHip: Int,
-        accumulatedHeel: Int,
+        totalOcciputTime: Int,
+        totalScapulaTime: Int,
+        totalRightElbowTime: Int,
+        totalLeftElbowTime: Int,
+        totalHipTime: Int,
+        totalRightHeelTime: Int,
+        totalLeftHeelTime: Int,
         deviceID: Int
     ) {
         self.id = id
         self.day = day
-        self.accumulatedOcciput = accumulatedOcciput
-        self.accumulatedScapula = accumulatedScapula
-        self.accumulatedElbow = accumulatedElbow
-        self.accumulatedHip = accumulatedHip
-        self.accumulatedHeel = accumulatedHeel
+        self.totalOcciputTime = totalOcciputTime
+        self.totalScapulaTime = totalScapulaTime
+        self.totalRightElbowTime = totalRightElbowTime
+        self.totalLeftElbowTime = totalLeftElbowTime
+        self.totalHipTime = totalHipTime
+        self.totalRightHeelTime = totalRightHeelTime
+        self.totalLeftHeelTime = totalLeftHeelTime
         self.deviceID = deviceID
     }
     
@@ -92,11 +104,13 @@ nonisolated public struct DayLog: Codable, Identifiable, Hashable {
             let decoded = try SupabaseCoding.decode(DayLog.self, from: row)
             self.id = decoded.id
             self.day = decoded.day
-            self.accumulatedOcciput = decoded.accumulatedOcciput
-            self.accumulatedScapula = decoded.accumulatedScapula
-            self.accumulatedElbow = decoded.accumulatedElbow
-            self.accumulatedHip = decoded.accumulatedHip
-            self.accumulatedHeel = decoded.accumulatedHeel
+            self.totalOcciputTime = decoded.totalOcciputTime
+            self.totalScapulaTime = decoded.totalScapulaTime
+            self.totalRightElbowTime = decoded.totalRightElbowTime
+            self.totalLeftElbowTime = decoded.totalLeftElbowTime
+            self.totalHipTime = decoded.totalHipTime
+            self.totalRightHeelTime = decoded.totalRightHeelTime
+            self.totalLeftHeelTime = decoded.totalLeftHeelTime
             self.deviceID = decoded.deviceID
         } catch {
             return nil

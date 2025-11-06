@@ -16,11 +16,13 @@ public struct Patient: Codable, Hashable, Identifiable {
     public var name: String = ""
     public var height: Float?
     public var weight: Float?
-    public var occiputTime: Int?
-    public var scapulaTime: Int?
-    public var elbowTime: Int?
-    public var hipTime: Int?
-    public var heelTime: Int?
+    public var occiputThreshold: Int?
+    public var scapulaThreshold: Int?
+    public var rightElbowThreshold: Int?
+    public var leftElbowThreshold: Int?
+    public var hipThreshold: Int?
+    public var rightHeelThreshold: Int?
+    public var leftHeelThreshold: Int?
     public var deviceID: Int?
     
     
@@ -32,18 +34,19 @@ public struct Patient: Codable, Hashable, Identifiable {
         case name
         case height
         case weight
-        case occiputTime = "occiput_time"
-        case scapulaTime = "scapula_time"
-        case elbowTime = "elbow_time"
-        case hipTime = "hip_time"
-        case heelTime = "heel_time"
+        case occiputThreshold = "occiput_threshold"
+        case scapulaThreshold = "scapula_threshold"
+        case rightElbowThreshold = "relbow_threshold"
+        case leftElbowThreshold = "lelbow_threshold"
+        case hipThreshold = "hip_threshold"
+        case rightHeelThreshold = "rheel_threshold"
+        case leftHeelThreshold = "lheel_threshold"
         case deviceID = "device_id"
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
-        let str = try container.decode(String.self, forKey: .createdAt)
         self.createdAt = try Date(try container.decode(String.self, forKey: .createdAt), strategy: .iso8601)
         let updatedAtStr = try container.decodeIfPresent(String.self, forKey: .updatedAt)
         if let updatedAtStr {
@@ -53,11 +56,13 @@ public struct Patient: Codable, Hashable, Identifiable {
         self.name = try container.decode(String.self, forKey: .name)
         self.height = try container.decodeIfPresent(Float.self, forKey: .height)
         self.weight = try container.decodeIfPresent(Float.self, forKey: .weight)
-        self.occiputTime = try container.decodeIfPresent(Int.self, forKey: .occiputTime)
-        self.scapulaTime = try container.decodeIfPresent(Int.self, forKey: .scapulaTime)
-        self.elbowTime = try container.decodeIfPresent(Int.self, forKey: .elbowTime)
-        self.hipTime = try container.decodeIfPresent(Int.self, forKey: .hipTime)
-        self.heelTime = try container.decodeIfPresent(Int.self, forKey: .heelTime)
+        self.occiputThreshold = try container.decodeIfPresent(Int.self, forKey: .occiputThreshold)
+        self.scapulaThreshold = try container.decodeIfPresent(Int.self, forKey: .scapulaThreshold)
+        self.rightElbowThreshold = try container.decodeIfPresent(Int.self, forKey: .rightElbowThreshold)
+        self.leftElbowThreshold = try container.decodeIfPresent(Int.self, forKey: .leftElbowThreshold)
+        self.hipThreshold = try container.decodeIfPresent(Int.self, forKey: .hipThreshold)
+        self.rightHeelThreshold = try container.decodeIfPresent(Int.self, forKey: .rightHeelThreshold)
+        self.leftHeelThreshold = try container.decodeIfPresent(Int.self, forKey: .leftHeelThreshold)
         self.deviceID = try container.decodeIfPresent(Int.self, forKey: .deviceID)
     }
     
@@ -70,11 +75,13 @@ public struct Patient: Codable, Hashable, Identifiable {
         try container.encode(name, forKey: .name)
         try container.encodeIfPresent(height, forKey: .height)
         try container.encodeIfPresent(weight, forKey: .weight)
-        try container.encodeIfPresent(occiputTime, forKey: .occiputTime)
-        try container.encodeIfPresent(scapulaTime, forKey: .scapulaTime)
-        try container.encodeIfPresent(elbowTime, forKey: .elbowTime)
-        try container.encodeIfPresent(hipTime, forKey: .hipTime)
-        try container.encodeIfPresent(heelTime, forKey: .heelTime)
+        try container.encodeIfPresent(occiputThreshold, forKey: .occiputThreshold)
+        try container.encodeIfPresent(scapulaThreshold, forKey: .scapulaThreshold)
+        try container.encodeIfPresent(rightElbowThreshold, forKey: .rightElbowThreshold)
+        try container.encodeIfPresent(leftElbowThreshold, forKey: .leftElbowThreshold)
+        try container.encodeIfPresent(hipThreshold, forKey: .hipThreshold)
+        try container.encodeIfPresent(rightHeelThreshold, forKey: .rightHeelThreshold)
+        try container.encodeIfPresent(leftHeelThreshold, forKey: .leftHeelThreshold)
         try container.encodeIfPresent(deviceID, forKey: .deviceID)
     }
     
@@ -90,11 +97,13 @@ public struct Patient: Codable, Hashable, Identifiable {
             self.name = decoded.name
             self.height = decoded.height
             self.weight = decoded.weight
-            self.occiputTime = decoded.occiputTime
-            self.scapulaTime = decoded.scapulaTime
-            self.elbowTime = decoded.elbowTime
-            self.hipTime = decoded.hipTime
-            self.heelTime = decoded.heelTime
+            self.occiputThreshold = decoded.occiputThreshold
+            self.scapulaThreshold = decoded.scapulaThreshold
+            self.rightElbowThreshold = decoded.rightElbowThreshold
+            self.leftElbowThreshold = decoded.leftElbowThreshold
+            self.hipThreshold = decoded.hipThreshold
+            self.rightHeelThreshold = decoded.rightHeelThreshold
+            self.leftHeelThreshold = decoded.leftHeelThreshold
             self.deviceID = decoded.deviceID
         } catch {
             return nil
@@ -103,9 +112,18 @@ public struct Patient: Codable, Hashable, Identifiable {
     
     init(
         id: Int?,
-        createdAt: Date, updatedAt: Date? = nil,
-        uid: UUID, name: String, height: Float? = nil, weight: Float? = nil,
-        occiputTime: Int?, scapulaTime: Int?, elbowTime: Int?, hipTime: Int?, heelTime: Int?,
+        createdAt: Date,
+        updatedAt: Date? = nil,
+        uid: UUID,
+        name: String,
+        height: Float? = nil, weight: Float? = nil,
+        occiputThreshold: Int?,
+        scapulaThreshold: Int?,
+        rightElbowThreshold: Int?,
+        leftElbowThreshold: Int?,
+        hipThreshold: Int?,
+        rightHeelThreshold: Int?,
+        leftHeelThreshold: Int?,
         deviceID: Int? = nil
     ) {
         if let id {
@@ -117,11 +135,13 @@ public struct Patient: Codable, Hashable, Identifiable {
         self.name = name
         self.height = height
         self.weight = weight
-        self.occiputTime = occiputTime
-        self.scapulaTime = scapulaTime
-        self.elbowTime = elbowTime
-        self.hipTime = hipTime
-        self.heelTime = heelTime
+        self.occiputThreshold = occiputThreshold
+        self.scapulaThreshold = scapulaThreshold
+        self.rightElbowThreshold = rightElbowThreshold
+        self.leftElbowThreshold = leftElbowThreshold
+        self.hipThreshold = hipThreshold
+        self.rightHeelThreshold = rightHeelThreshold
+        self.leftHeelThreshold = leftHeelThreshold
         self.deviceID = deviceID
     }
 }

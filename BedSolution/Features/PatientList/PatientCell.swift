@@ -37,5 +37,18 @@ struct PatientCell: View {
 }
 
 #Preview {
-    PatientCell(patient: Patient(id: 123, createdAt: .now, uid: UUID(), name: "", occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil))
+    PatientCell(
+      patient: Patient(
+        id: 2625083234860015468, createdAt: .now,
+        uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
+        name: "",
+        occiputThreshold: nil,
+        scapulaThreshold: nil,
+        rightElbowThreshold: nil,
+        leftElbowThreshold: nil,
+        hipThreshold: nil,
+        rightHeelThreshold: nil,
+        leftHeelThreshold: nil
+      )
+    )
 }

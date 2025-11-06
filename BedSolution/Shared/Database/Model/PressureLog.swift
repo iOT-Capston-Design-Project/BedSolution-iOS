@@ -37,11 +37,13 @@ public enum PostureType: Int, Codable {
 nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
     public var id: Int = 0
     public var createdAt: Date = Date()
-    public var occiput: Int = 0
-    public var scapula: Int = 0
-    public var elbow: Int = 0
-    public var heel: Int = 0
-    public var hip: Int = 0
+    public var occiputTime: Int = 0
+    public var scapulaTime: Int = 0
+    public var rightElbowTime: Int = 0
+    public var leftElbowTime: Int = 0
+    public var hipTime: Int = 0
+    public var rightHeelTime: Int = 0
+    public var leftHeelTime: Int = 0
     public var dayID: Int = 0
     public var postureType: PostureType = .UKNOWN
     public var needPostureChange: Bool = false
@@ -49,11 +51,13 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case id
         case createdAt = "created_at"
-        case occiput
-        case scapula
-        case elbow
-        case heel
-        case hip
+        case occiputTime = "occiput"
+        case scapulaTime = "scapula"
+        case rightElbowTime = "relbow"
+        case leftElbowTime = "lelbow"
+        case rightHeelTime = "rheel"
+        case leftHeelTime = "lheel"
+        case hipTime = "hip"
         case dayID = "day_id"
         case postureType = "posture_type"
         case needPostureChange = "posture_change_required"
@@ -63,11 +67,13 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
         self.createdAt = try container.decode(Date.self, forKey: .createdAt)
-        self.occiput = try container.decode(Int.self, forKey: .occiput)
-        self.scapula = try container.decode(Int.self, forKey: .scapula)
-        self.elbow = try container.decode(Int.self, forKey: .elbow)
-        self.heel = try container.decode(Int.self, forKey: .heel)
-        self.hip = try container.decode(Int.self, forKey: .hip)
+        self.occiputTime = try container.decode(Int.self, forKey: .occiputTime)
+        self.scapulaTime = try container.decode(Int.self, forKey: .scapulaTime)
+        self.rightElbowTime = try container.decode(Int.self, forKey: .rightElbowTime)
+        self.leftElbowTime = try container.decode(Int.self, forKey: .leftElbowTime)
+        self.rightHeelTime = try container.decode(Int.self, forKey: .rightHeelTime)
+        self.leftHeelTime = try container.decode(Int.self, forKey: .leftHeelTime)
+        self.hipTime = try container.decode(Int.self, forKey: .hipTime)
         self.dayID = try container.decode(Int.self, forKey: .dayID)
         self.postureType = try container.decodeIfPresent(PostureType.self, forKey: .postureType) ?? .UKNOWN
         self.needPostureChange = try container.decode(Bool.self, forKey: .needPostureChange)
@@ -77,11 +83,13 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(createdAt, forKey: .createdAt)
-        try container.encode(occiput, forKey: .occiput)
-        try container.encode(scapula, forKey: .scapula)
-        try container.encode(elbow, forKey: .elbow)
-        try container.encode(heel, forKey: .heel)
-        try container.encode(hip, forKey: .hip)
+        try container.encode(occiputTime, forKey: .occiputTime)
+        try container.encode(scapulaTime, forKey: .scapulaTime)
+        try container.encode(rightElbowTime, forKey: .rightElbowTime)
+        try container.encode(leftElbowTime, forKey: .leftElbowTime)
+        try container.encode(rightHeelTime, forKey: .rightHeelTime)
+        try container.encode(leftHeelTime, forKey: .leftHeelTime)
+        try container.encode(hipTime, forKey: .hipTime)
         try container.encode(dayID, forKey: .dayID)
         try container.encode(postureType, forKey: .postureType)
         try container.encode(needPostureChange, forKey: .needPostureChange)
@@ -94,11 +102,13 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
             let decoded = try SupabaseCoding.decode(PressureLog.self, from: row)
             self.id = decoded.id
             self.createdAt = decoded.createdAt
-            self.occiput = decoded.occiput
-            self.scapula = decoded.scapula
-            self.elbow = decoded.elbow
-            self.heel = decoded.heel
-            self.hip = decoded.hip
+            self.occiputTime = decoded.occiputTime
+            self.scapulaTime = decoded.scapulaTime
+            self.rightElbowTime = decoded.rightElbowTime
+            self.leftElbowTime = decoded.leftElbowTime
+            self.rightHeelTime = decoded.rightHeelTime
+            self.leftHeelTime = decoded.leftHeelTime
+            self.hipTime = decoded.hipTime
             self.dayID = decoded.dayID
             self.postureType = decoded.postureType
             self.needPostureChange = decoded.needPostureChange
@@ -107,16 +117,19 @@ nonisolated public struct PressureLog: Codable, Hashable, Identifiable {
         }
     }
     
-    init(id: Int, createdAt: Date, occiput: Int, scapula: Int, elbow: Int, heel: Int, hip: Int, dayID: Int, postureType: PostureType = .UKNOWN, needPostureChange: Bool = false) {
+    init(id: Int, createdAt: Date, occiputTime: Int, scapulaTime: Int, rightElbowTime: Int, leftElbowTime: Int, rightHeelTime: Int, leftHeelTime: Int, hipTime: Int, dayID: Int, postureType: PostureType = .UKNOWN, needPostureChange: Bool = false) {
         self.id = id
         self.createdAt = createdAt
-        self.occiput = occiput
-        self.scapula = scapula
-        self.elbow = elbow
-        self.heel = heel
-        self.hip = hip
+        self.occiputTime = occiputTime
+        self.scapulaTime = scapulaTime
+        self.rightElbowTime = rightElbowTime
+        self.leftElbowTime = leftElbowTime
+        self.rightHeelTime = rightHeelTime
+        self.leftHeelTime = leftHeelTime
+        self.hipTime = hipTime
         self.dayID = dayID
         self.postureType = postureType
         self.needPostureChange = needPostureChange
     }
 }
+

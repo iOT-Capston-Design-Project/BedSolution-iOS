@@ -8,6 +8,7 @@
 import Foundation
 import Supabase
 
+/// 브로드캐스팅을 통해 받는 히트맵 구조
 public struct Heatmap: Codable, Hashable, Identifiable {
     public let id = UUID()
     public var sensors: [Int] = []

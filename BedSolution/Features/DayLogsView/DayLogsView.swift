@@ -200,13 +200,13 @@ fileprivate struct DayLogRow: View {
   var body: some View {
     HStack(spacing: 0) {
       Group {
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedOcciput))
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedScapula))
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedElbow))
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedElbow))
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedHip))
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedHeel))
-        Text(TimeFormatter.formattedDuration(seconds: dayLog.accumulatedHeel))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalOcciputTime))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalScapulaTime))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalRightElbowTime))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalLeftElbowTime))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalHipTime))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalRightHeelTime))
+        Text(TimeFormatter.formattedDuration(seconds: dayLog.totalLeftHeelTime))
       }
       .textStyle(theme.textTheme.bodyLarge)
       .frame(width: columnWidth, height: rowHeight)
@@ -227,7 +227,13 @@ fileprivate struct DayLogRow: View {
       id: 2625083234860015468, createdAt: .now,
       uid: UUID(uuidString: "d9542f41-2177-4522-a833-b48afeff8b19")!,
       name: "",
-      occiputTime: nil, scapulaTime: nil, elbowTime: nil, hipTime: nil, heelTime: nil
+      occiputThreshold: nil,
+      scapulaThreshold: nil,
+      rightElbowThreshold: nil,
+      leftElbowThreshold: nil,
+      hipThreshold: nil,
+      rightHeelThreshold: nil,
+      leftHeelThreshold: nil
     )
   )
 }

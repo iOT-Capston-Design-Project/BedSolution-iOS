@@ -26,7 +26,7 @@ enum PatientStatusVMError: LocalizedError {
 
 private struct DayLogPullingSequence: AsyncSequence {
   typealias AsyncIterator = Iterator
-  typealias Element = (DayLog, [PressureLog])
+  typealias Element = (Patient, DayLog, [PressureLog])
   
   /// 풀링 단위 (초)
   let interval: TimeInterval
@@ -37,21 +37,34 @@ private struct DayLogPullingSequence: AsyncSequence {
   }
   
   struct Iterator: AsyncIteratorProtocol {
-    typealias Element = (DayLog, [PressureLog])
+    typealias Element = (Patient, DayLog, [PressureLog])
     let interval: TimeInterval
     let patient: Patient
+    private let patientRepo = PatientRepository()
     private let dayLogRepo = DayLogRepository()
     private let pressureLogRepo = PressureLogRepository()
     
-    func next() async throws -> (DayLog, [PressureLog])? {
+    private func fetchPatient(patientID: Int, uid: UUID) async throws -> Patient? {
+      do {
+        let patient = try await patientRepo.get(filter: .init(uid: uid, id: patientID))
+        return patient
+      } catch {
+        throw PatientStatusVMError.fetchPatientFailed
+      }
+    }
+    
+    func next() async throws -> (Patient, DayLog, [PressureLog])? {
       try await Task.sleep(for: .seconds(interval))
+      guard let patient = try await fetchPatient(patientID: patient.id, uid: patient.uid) else {
+        throw PatientStatusVMError.noPatient
+      }
       guard let deviceID = patient.deviceID else { return nil }
       guard let dayLog = try await dayLogRepo.get(
         filter: .init(deviceID: deviceID, day: .now)
       ) else { throw PatientStatusVMError.noDayLog }
       do {
         let logs = try await pressureLogRepo.list(filter: .init(dayID: dayLog.id), limit: nil)
-        return (dayLog, logs)
+        return (patient, dayLog, logs)
       } catch {
         throw PatientStatusVMError.fetchPressureLogFailed
       }
@@ -81,6 +94,7 @@ class PatientStatusViewModel {
   private(set) var rightHeeelTime: Int = 0
   private(set) var leftHeelTime: Int = 0
   private(set) var posture: PostureType = .UKNOWN
+  private(set) var isPostureChangeRequired: Bool = false
   
   // MARK: - 오늘 날짜에 해당하는 기록들
   private(set) var pressureLogs: [PressureLog] = []
@@ -105,26 +119,16 @@ class PatientStatusViewModel {
     cancelPullingTask()
   }
   
-  private func fetchPatient(patientID: Int, uid: UUID) async {
-    do {
-      let patient = try await patientRepo.get(filter: .init(uid: uid, id: patientID))
-      if let patient {
-        self.patient = patient
-        occiputThreshold = patient.occiputTime
-        scapulaThreshold = patient.scapulaTime
-        rightElbowThreshold = patient.elbowTime
-        leftElbowThreshold = patient.elbowTime
-        hipThreshold = patient.hipTime
-        rightHeeelThreshold = patient.heelTime
-        leftHeelThreshold = patient.heelTime
-        name = patient.name
-      } else {
-        self.error = PatientStatusVMError.noPatient
-      }
-    } catch {
-      self.logger.error("Fail to fetch patient (\(error.localizedDescription))")
-      self.error = PatientStatusVMError.fetchPatientFailed
-    }
+  private func updatePatient(patient: Patient) {
+    self.patient = patient
+    occiputThreshold = patient.occiputThreshold
+    scapulaThreshold = patient.scapulaThreshold
+    rightElbowThreshold = patient.rightElbowThreshold
+    leftElbowThreshold = patient.leftElbowThreshold
+    hipThreshold = patient.hipThreshold
+    rightHeeelThreshold = patient.rightHeelThreshold
+    leftHeelThreshold = patient.leftHeelThreshold
+    name = patient.name
   }
   
   func cancelPullingTask() {
@@ -134,31 +138,47 @@ class PatientStatusViewModel {
   
   private func startPullingTask() {
     pullingTask?.cancel()
-    guard let patient else { return }
+    guard let patient else {
+      logger.warning("Patient is not set. Cannot start pulling task")
+      return
+    }
     pullingTask = Task {
       do {
-        for try await (day, logs) in DayLogPullingSequence(interval: 10, patient: patient) {
-          self.dayLog = day
-          self.pressureLogs = logs.sorted(by: { $0.createdAt > $1.createdAt })
-          let latestLog = pressureLogs.first
-          occiputTime = latestLog?.occiput ?? 0
-          scapulaTime = latestLog?.scapula ?? 0
-          rightElbowTime = latestLog?.elbow ?? 0
-          leftElbowTime = latestLog?.elbow ?? 0
-          hipTime = latestLog?.hip ?? 0
-          rightHeeelTime = latestLog?.heel ?? 0
-          leftHeelTime = latestLog?.heel ?? 0
-          posture = latestLog?.postureType ?? .UKNOWN
-          latestUpdatedAt = .now
+        for try await (patient, day, logs) in DayLogPullingSequence(interval: 10, patient: patient) {
+          self.logger.info("Fetch recent day log")
+          await MainActor.run {
+            self.updatePatient(patient: patient)
+            self.dayLog = day
+            self.pressureLogs = logs.sorted(by: { $0.createdAt > $1.createdAt })
+            let latestLog = pressureLogs.first
+            occiputTime = latestLog?.occiputTime ?? 0
+            scapulaTime = latestLog?.scapulaTime ?? 0
+            rightElbowTime = latestLog?.leftElbowTime ?? 0
+            leftElbowTime = latestLog?.rightElbowTime ?? 0
+            hipTime = latestLog?.hipTime ?? 0
+            rightHeeelTime = latestLog?.rightHeelTime ?? 0
+            leftHeelTime = latestLog?.leftHeelTime ?? 0
+            posture = latestLog?.postureType ?? .UKNOWN
+            isPostureChangeRequired = latestLog?.needPostureChange ?? false
+            latestUpdatedAt = .now
+            if self.error != nil {
+              self.error = nil
+            }
+          }
         }
       } catch {
-        self.error = .fetchDayLogFailed
+        self.logger.error("Fail to fetch day log (\(error.localizedDescription))")
+        if let vmError = error as? PatientStatusVMError {
+          self.error = vmError
+        } else {
+          self.error = .fetchDayLogFailed
+        }
       }
     }
   }
   
-  func initialize(patientID: Int, uid: UUID) async {
-    await fetchPatient(patientID: patientID, uid: uid)
+  func initialize(patient: Patient) async {
+    self.patient = patient
     startPullingTask()
   }
 }

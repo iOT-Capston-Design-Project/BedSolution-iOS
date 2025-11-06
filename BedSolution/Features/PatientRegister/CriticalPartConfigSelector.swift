@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CriticalPartConfigWidget: View {
+struct CriticalPartConfigSelector: View {
   @Environment(\.theme) private var theme
   @Binding var occiputTime: Int?
   @Binding var scapulaTime: Int?
@@ -82,7 +82,7 @@ fileprivate struct PartLabel: View {
     HStack(spacing: 5) {
         Text(part)
     }
-    .textStyle(theme.textTheme.emphasizedLabelLarge)
+    .textStyle(theme.textTheme.emphasizedBodyLarge)
     .foregroundColorSet(isSelected ? theme.colorTheme.onErrorContainer: theme.colorTheme.onSurfaceVarient)
     .padding(EdgeInsets(top: 1, leading: 5, bottom: 1, trailing: 5))
     .backgroundColorSet(isSelected ? theme.colorTheme.errorContainer: theme.colorTheme.surfaceContainerHigh, in: Capsule())
@@ -127,7 +127,7 @@ fileprivate struct TouchablePartSpot: View {
   @Previewable @State var hipTime: Int?
   @Previewable @State var rightHeelTime: Int?
   @Previewable @State var leftHeelTime: Int?
-  CriticalPartConfigWidget(
+  CriticalPartConfigSelector(
     occiputTime: $occiputTime,
     scapulaTime: $scapulaTime,
     rightElbowTime: $rightElbowTime,

@@ -83,7 +83,22 @@ struct PatientBodyPressureWidget: View {
     .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
     .backgroundColorSet(theme.colorTheme.surfaceContainer, in: RoundedRectangle(cornerRadius: 8))
     .overlay {
-      if vm.dayLog == nil {
+      if let vmError = vm.error {
+        ZStack {
+          RoundedRectangle(cornerRadius: 8)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 8))
+          VStack(spacing: 15) {
+            Image(systemName: "exclamationmark.triangle.fill")
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 35, height: 35)
+            Text(errorMessage(vmError))
+              .textStyle(theme.textTheme.emphasizedLabelLarge)
+          }
+          .foregroundColorSet(theme.colorTheme.error)
+        }
+        .transition(.opacity)
+      } else if vm.dayLog == nil {
         ZStack {
           RoundedRectangle(cornerRadius: 8)
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 8))
@@ -97,12 +112,34 @@ struct PatientBodyPressureWidget: View {
               .foregroundColorSet(theme.colorTheme.onSurface)
           }
         }
+        .transition(.opacity)
       }
     }
+    .animation(.default, value: vm.error)
+    .animation(.default, value: vm.dayLog)
     .overlay {
       RoundedRectangle(cornerRadius: 8)
         .stroke(lineWidth: 1)
         .foregroundColorSet(theme.colorTheme.outline)
+    }
+  }
+  
+  private func errorMessage(_ error: PatientStatusVMError) -> LocalizedStringResource {
+    switch error {
+    case .internalError:
+      "내부 오류가 발생했어요."
+    case .fetchPatientFailed:
+      "환자 정보를 불러올 수 없어요."
+    case .noPatient:
+      "등록된 환자가 없어요."
+    case .fetchPressureLogFailed:
+      "압력 기록을 불러올 수 없어요."
+    case .noDayLog:
+      "오늘 기록된 압력정보가 없어요."
+    case .noDeviceID:
+      "장치 등록이 필요해요."
+    case .fetchDayLogFailed:
+      "오늘 기록 정보를 불러올 수 없어요."
     }
   }
 }
