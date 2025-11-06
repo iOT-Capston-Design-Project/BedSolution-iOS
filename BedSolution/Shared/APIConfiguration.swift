@@ -23,7 +23,7 @@ class APIConfiguration {
     
     func load() -> Bool {
         guard baseURL == nil || apiKey == nil else { return true }
-        guard let apiURL = URL(string: "http://34.30.146.175:8000"),
+        guard let apiURL = URL(string: "https://presumable-nonclosely-eileen.ngrok-free.dev"),
               let apiKey = Bundle.main.infoDictionary?["API_KEY"] as? String else {
             logger.error("API configuration is missing")
             return false
